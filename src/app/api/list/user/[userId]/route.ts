@@ -1,0 +1,28 @@
+import axios from 'axios'
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma/client'
+import { Item, List, User } from '@prisma/client'
+
+export interface GetAllUserList extends List {
+  items: Item[]
+  createdBy: User
+}
+
+export async function GET({ params }: { params: { userId: string } }) {
+  const { userId } = params
+
+  const allUserLists = await prisma.list.findMany({
+    where: {
+      createdBy: {
+        id: userId,
+      },
+    },
+    include: {
+      items: true,
+      createdBy: true
+    },
+  })
+
+  return NextResponse.json({ status: 201, data: allUserLists })
+}
+
