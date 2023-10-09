@@ -8,7 +8,7 @@ export interface GetAllUserList extends List {
   createdBy: User
 }
 
-export async function GET({ params }: { params: { userId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
   const { userId } = params
 
   const allUserLists = await prisma.list.findMany({
@@ -17,10 +17,12 @@ export async function GET({ params }: { params: { userId: string } }) {
         id: userId,
       },
     },
-    include: {
+    select: {
+      id: true,
+      title: true,
       items: true,
       createdBy: true
-    },
+    }
   })
 
   return NextResponse.json({ status: 201, data: allUserLists })

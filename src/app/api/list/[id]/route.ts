@@ -15,7 +15,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   const item = await prisma.list.update({
     where: { id: params.id },
-    data: { description: body.description }
+    data: { title: body.title, description: body.description }
   });
 
   return NextResponse.json({ status: 200, data: item })

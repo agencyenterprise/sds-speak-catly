@@ -65,12 +65,14 @@ model List {
 }
 
 model Item {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  text      String
-  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId    String   @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  text        String
+  concludedAt DateTime?
+  score       Int?
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 enum Role {

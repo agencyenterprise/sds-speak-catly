@@ -1,166 +1,112 @@
-import { Fragment, useEffect, useState } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { FaEllipsisVertical } from 'react-icons/fa6'
-import { GetAllUserList } from '@/app/api/list/user/[userId]/route'
+'use client'
+import { ListsAtom } from '@/atoms/ListsAtom'
+import ElipsisMenu from '@/components/ElispsisMenu'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { Item, List } from '@prisma/client'
+import axios, { AxiosResponse } from 'axios'
+import { useRecoilState } from 'recoil'
+import { useState } from 'react'
+import ListItemComponent from '@/components/ListItem'
+import { Button } from '@/components/Button'
 
-const statuses: Record<string, string> = {
-  Complete: 'text-green-700 bg-green-50 ring-green-600/20',
-  'In progress': 'text-gray-600 bg-gray-50 ring-gray-500/10',
-  Archived: 'text-yellow-800 bg-yellow-50 ring-yellow-600/20',
-}
-const lists = [
-  {
-    id: 1,
-    name: 'GraphQL API',
-    href: '#',
-    status: 'Complete',
-    createdBy: 'Leslie Alexander',
-    dueDate: 'March 17, 2023',
-    dueDateTime: '2023-03-17T00:00Z',
-  },
-  {
-    id: 2,
-    name: 'New benefits plan',
-    href: '#',
-    status: 'In progress',
-    createdBy: 'Leslie Alexander',
-    dueDate: 'May 5, 2023',
-    dueDateTime: '2023-05-05T00:00Z',
-  },
-  {
-    id: 3,
-    name: 'Onboarding emails',
-    href: '#',
-    status: 'In progress',
-    createdBy: 'Courtney Henry',
-    dueDate: 'May 25, 2023',
-    dueDateTime: '2023-05-25T00:00Z',
-  },
-  {
-    id: 4,
-    name: 'iOS app',
-    href: '#',
-    status: 'In progress',
-    createdBy: 'Leonard Krasner',
-    dueDate: 'June 7, 2023',
-    dueDateTime: '2023-06-07T00:00Z',
-  },
-  {
-    id: 5,
-    name: 'Marketing site redesign',
-    href: '#',
-    status: 'Archived',
-    createdBy: 'Courtney Henry',
-    dueDate: 'June 10, 2023',
-    dueDateTime: '2023-06-10T00:00Z',
-  },
-]
+export default function ListComponent() {
+  const [lists, setLists] = useRecoilState(ListsAtom)
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ')
-}
+  async function handleCreateItem(listId: string) {
+    const text = prompt('Enter the text of your item')
+    if (!text) return
 
-interface ListComponentProps {
-  lists: GetAllUserList[];
-}
+    const { data } = await axios.post<AxiosResponse<Item>>('/api/item', {
+      text,
+      listId,
+    })
 
-export default function ListComponent(props: ListComponentProps) {
-  const { lists } = props
+    setLists((oldLists) => {
+      const list = oldLists.find((list) => list.id === listId)
+      if (list) {
+        return oldLists.map((list) => {
+          if (list.id === listId) {
+            return {
+              ...list,
+              items: [...list.items, data.data],
+            }
+          }
+          return list
+        })
+      }
+
+      return [...oldLists]
+    })
+  }
+
+  async function handleListEdit(listId: string) {
+    const newTitle = prompt('Enter the new title')
+    if (!newTitle) return
+
+    const { data } = await axios.patch<AxiosResponse<List>>(
+      `/api/list/${listId}`,
+      {
+        title: newTitle,
+      },
+    )
+    setLists((oldLists) => {
+      return oldLists.map((list) => {
+        if (list.id === listId) {
+          return {
+            ...list,
+            ...data.data,
+          }
+        }
+        return list
+      })
+    })
+  }
+
+  function handleListRemove(listId: string) {
+    setLists((oldLists) => {
+      const newList = oldLists.filter((list) => list.id !== listId)
+      return [...newList]
+    })
+  }
 
   return (
-    <ul role="list" className="divide-y divide-gray-100">
+    <div className='flex max-h-[89vh] flex-row flex-wrap gap-4'>
       {lists.map((list) => (
-        <li key={list.id} className="flex items-center justify-between gap-x-6 py-5">
-          <div className="min-w-0">
-            <div className="flex items-start gap-x-3">
-              <p className="text-sm font-semibold leading-6 text-gray-900">{list.title}</p>
-              {/* <p
-                className={classNames(
-                  statuses[list.status],
-                  'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset'
-                )}
-              >
-                {list.status}
-              </p> */}
-            </div>
-            <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-              {/* <p className="whitespace-nowrap">
-                Due on <time dateTime={list.dueDateTime}>{list.dueDate}</time>
-              </p> */}
-              <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
-                <circle cx={1} cy={1} r={1} />
-              </svg>
-              <p className="truncate">Created by {list.createdBy.name}</p>
-            </div>
+        <div key={list.id} className='relative mt-6 w-96 '>
+          <div className='sticky top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-blue-500 px-3 py-1.5 '>
+            <h3 className='text-sm font-semibold leading-6 text-white'>
+              {list.title}
+            </h3>
+            <ElipsisMenu
+              handleEdit={() => handleListEdit(list.id)}
+              handleRemove={() => handleListRemove(list.id)}
+              color='white'
+            />
           </div>
-          <div className="flex flex-none items-center gap-x-4">
-            <a
-              href={'#'}
-              className="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
+          <ul role='list' className='divide-y divide-gray-200'>
+            {list.items?.map((item) => (
+              <li
+                key={item.id}
+                className=' flex flex-row items-center justify-between gap-x-4 bg-slate-50 px-3 py-2'
+              >
+                <ListItemComponent item={item} />
+              </li>
+            ))}
+            <li
+              key={'CREATE_NEW' + list.id}
+              className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'
+              onClick={() => handleCreateItem(list.id)}
             >
-              View project
-              <span className="sr-only">, {list.title}</span>
-            </a>
-            <Menu as="div" className="relative flex-none">
-              <Menu.Button className="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900">
-                <span className="sr-only">Open options</span>
-                <FaEllipsisVertical className="h-5 w-5" aria-hidden="true" />
-              </Menu.Button>
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Edit<span className="sr-only">, {list.title}</span>
-                      </a>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Move<span className="sr-only">, {list.title}</span>
-                      </a>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Delete<span className="sr-only">, {list.title}</span>
-                      </a>
-                    )}
-                  </Menu.Item>
-                </Menu.Items>
-              </Transition>
-            </Menu>
-          </div>
-        </li>
+              <button className='flex items-center rounded-full border border-blue-500 bg-transparent px-3 py-1 font-bold text-blue-500 hover:bg-blue-500 hover:text-white'>
+                <span className='mr-1 h-5 w-5'>
+                  <PlusIcon />
+                </span>
+                Add to List
+              </button>
+            </li>
+          </ul>
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }

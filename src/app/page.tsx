@@ -1,80 +1,82 @@
-'use client';
-import { GetAllUserList } from '@/app/api/list/user/[userId]/route';
-import ListComponent from '@/components/List';
-import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
-import { useEffect, useState } from 'react';
+'use client'
+import { ListsAtom } from '@/atoms/ListsAtom'
+import { Button } from '@/components/Button'
+import ListComponent from '@/components/List'
+import ResultsModalComponent from '@/components/ResultsModal'
+import axios from 'axios'
+import { useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
+import { useEffect } from 'react'
+import { useSetRecoilState } from 'recoil'
 
 export default function Home() {
-
-  const [lists, setLists] = useState<GetAllUserList[]>([]);
-  const { status, data: session } = useSession();
+  const setLists = useSetRecoilState(ListsAtom)
+  const { status, data: session } = useSession()
 
   useEffect(() => {
+    console.log({ status })
     if (status === 'loading') {
-      return;
+      return
     }
 
     if (status === 'unauthenticated') {
-      redirect('/api/auth/signin');
+      redirect('/login')
     }
   }, [status])
 
-
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) return
 
-    fetch(`/api/list/user/${session.user.id}`)
-      .then((res) => res.json())
-      .then((data) => {
+    axios
+      .get(`/api/list/user/${session.user.id}`)
+      .then(({ data }) => {
         console.log(data)
-        setLists(data.data);
+        setLists(data.data)
       })
       .catch((error) => {
-        console.log(error);
+        console.log(error)
       })
-  }, [])
+  }, [session])
 
-  function handleListCreation() {
-    if (!session?.user?.id) return;
+  async function handleListCreation() {
+    if (!session?.user?.id) return
 
-    const title = prompt('Enter the title of your list');
-    if (!title) return;
-    fetch(`/api/list`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const title = prompt('Enter the title of your list')
+    if (!title) return
+
+    const data = await axios.post(
+      `/api/list`,
+      {
         title,
         userId: session.user.id,
-        items: []
-      })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-        setLists((prev) => [...prev, data.data]);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
+        items: [],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    setLists((prev) => [...prev, data.data])
   }
 
-
   return (
-    <div className="flex min-h-full flex-col bg-primary-100">
-      <div className="mx-auto flex w-full items-start gap-x-8">
-        <aside className="sticky top-8 hidden w-44 shrink-0 lg:block bg-primary-400 h-full">
-          <ListComponent lists={lists} />
-          <button onClick={handleListCreation} className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-100 bg-primary-600 hover:bg-primary-700">
-            Create new list
-          </button>
-        </aside>
-        <main className="flex-1">
-          main content
-        </main>
+    <>
+      <div className='flex min-h-full flex-col bg-primary-100'>
+        <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
+          <main className='flex-1'>
+            <Button
+              onClick={handleListCreation}
+              color='primary'
+              variant='solid'
+            >
+              Create new list
+            </Button>
+            <ListComponent />
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

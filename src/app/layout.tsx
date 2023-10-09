@@ -8,6 +8,8 @@ import NextAuthProvider from '@/lib/providers/next.auth.provider'
 import { SdsProjects } from 'sds-projects'
 import { SdsNavbar } from 'sds-projects'
 import { SDSWrapper } from '@/components/SdsWrapper'
+import { RecoilRoot } from 'recoil'
+import { RecoilWrapper } from '@/components/RecoilWrapper'
 
 export const metadata: Metadata = {
   title: {
@@ -31,17 +33,6 @@ const lexend = Lexend({
   variable: '--font-lexend',
 })
 
-const navigation = [{
-  // name: string;
-  // page: string;
-  // icon: React.ForwardRefExoticComponent<Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
-  //     title?: string | undefined;
-  //     titleId?: string | undefined;
-  // } & React.RefAttributes<SVGSVGElement>>;
-  // current?: undefined;
-  // newTab?: boolean;
-}]
-
 export default function RootLayout({
   children,
 }: {
@@ -60,11 +51,13 @@ export default function RootLayout({
         <Script src="https://scripts.simpleanalyticscdn.com/latest.js"></Script>
       </head>
       <body className="flex flex-col h-full">
-        <NextAuthProvider>
-          <SDSWrapper>
-            {children}
-          </SDSWrapper>
-        </NextAuthProvider>
+        <RecoilWrapper>
+          <NextAuthProvider>
+            <SDSWrapper>
+              {children}
+            </SDSWrapper>
+          </NextAuthProvider>
+        </RecoilWrapper>
       </body>
     </html>
   )

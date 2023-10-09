@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma/client'
 import { Item } from '@prisma/client'
@@ -19,6 +18,17 @@ export async function POST(req: NextRequest) {
         })),
       },
     },
+    select: {
+      id: true,
+      title: true,
+      items: true,
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    }
   })
 
   return NextResponse.json({ status: 201, data: newList })
