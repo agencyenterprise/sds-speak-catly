@@ -128,7 +128,7 @@ export default function ListItemComponent({ item }: ListItemProps) {
             ...list,
             items: [
               ...list.items.filter((item) => {
-                return item.id === itemId
+                return item.id !== itemId
               }),
             ],
           }
