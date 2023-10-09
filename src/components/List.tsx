@@ -5,9 +5,7 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { Item, List } from '@prisma/client'
 import axios, { AxiosResponse } from 'axios'
 import { useRecoilState } from 'recoil'
-import { useState } from 'react'
 import ListItemComponent from '@/components/ListItem'
-import { Button } from '@/components/Button'
 
 export default function ListComponent() {
   const [lists, setLists] = useRecoilState(ListsAtom)

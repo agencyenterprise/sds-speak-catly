@@ -1,8 +1,7 @@
 'use client'
 import { ListsAtom } from '@/atoms/ListsAtom'
-import { Button } from '@/components/Button'
 import ListComponent from '@/components/List'
-import ResultsModalComponent from '@/components/ResultsModal'
+import { PlusIcon } from '@heroicons/react/20/solid'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
@@ -14,7 +13,6 @@ export default function Home() {
   const { status, data: session } = useSession()
 
   useEffect(() => {
-    console.log({ status })
     if (status === 'loading') {
       return
     }
@@ -30,7 +28,6 @@ export default function Home() {
     axios
       .get(`/api/list/user/${session.user.id}`)
       .then(({ data }) => {
-        console.log(data)
         setLists(data.data)
       })
       .catch((error) => {
@@ -66,13 +63,12 @@ export default function Home() {
       <div className='flex min-h-full flex-col bg-primary-100'>
         <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
           <main className='flex-1'>
-            <Button
-              onClick={handleListCreation}
-              color='primary'
-              variant='solid'
-            >
+            <button className='flex items-center rounded-full border border-blue-500 bg-transparent px-3 py-2 font-bold text-blue-500 hover:bg-blue-500 hover:text-white'>
+              <span className='mr-1 h-5 w-5'>
+                <PlusIcon />
+              </span>
               Create new list
-            </Button>
+            </button>
             <ListComponent />
           </main>
         </div>

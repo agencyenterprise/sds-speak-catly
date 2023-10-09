@@ -44,7 +44,7 @@ export default function ListItemComponent({ item }: ListItemProps) {
           text: item.text,
         })
         .then(function ({ data }) {
-          console.log(data)
+          updateScore(data.data.score)
           setResult(data.data)
           setLoadingResult(false)
           modal.openModal({})
@@ -54,6 +54,35 @@ export default function ListItemComponent({ item }: ListItemProps) {
           setLoadingResult(false)
         })
     }
+  }
+
+  async function updateScore(score: number) {
+    const { data } = await axios.post<AxiosResponse<Item>>(
+      `/api/item/${item.id}/score`,
+      {
+        score,
+      },
+    )
+
+    setLists((oldLists) => {
+      return oldLists.map((list) => {
+        if (list.id === item.listId) {
+          return {
+            ...list,
+            items: [
+              ...list.items.map((prevItem) => {
+                console.log(data.data, item, prevItem)
+                if (prevItem.id === item.id) {
+                  return data.data
+                }
+                return prevItem
+              }),
+            ],
+          }
+        }
+        return list
+      })
+    })
   }
 
   async function handleItemEdit(listId: string, itemId: string) {
@@ -90,7 +119,6 @@ export default function ListItemComponent({ item }: ListItemProps) {
   }
 
   async function handleItemRemove(listId: string, itemId: string) {
-    console.log({ itemId })
     await axios.delete<AxiosResponse<Item>>(`/api/item/${itemId}`)
 
     setLists((oldLists) => {
@@ -114,30 +142,35 @@ export default function ListItemComponent({ item }: ListItemProps) {
     <>
       {modal.ModalComponent(result)}
       <div className='flex flex-row items-center gap-4'>
-        {item.concludedAt ? (
-          <div className='flex flex-row items-center gap-2 text-black'>
-            {item.score}
-            <div className='h-8 w-8 flex-none rounded-full border-2 border-success-500 bg-gray-50'>
-              <CheckCircleIcon height={24} width={24} color='#40ba73' />
-            </div>
+        <div className='flex flex-row items-center gap-2 text-2xl text-black'>
+          <div className='min-w-[42px] pr-4'>
+            {item.concludedAt && item.score ? (
+              <div
+                className={classNames(
+                  'flex flex-row items-center gap-2 font-bold text-black',
+                  item.score >= 80
+                    ? 'text-green-500'
+                    : item.score >= 50
+                    ? 'text-yellow-400'
+                    : 'text-red-500',
+                )}
+              >
+                {item.score}
+              </div>
+            ) : (
+              <>{'--'}</>
+            )}
           </div>
-        ) : (
-          <div className='flex flex-row items-center gap-2 text-2xl text-black'>
-            <div className='min-w-[42px] pr-4'>{'--'}</div>
-            <div className='flex min-w-[7rem] flex-row gap-3'>
-              <RecordButton
-                text={item.text}
-                loadingResult={loadingResult}
-                recordState={recordState}
-                setRecordState={(state) => setRecordState(state)}
-              />
-              <AudioReactRecorder
-                state={recordState}
-                onStop={onStopRecording}
-              />
-            </div>
+          <div className='flex min-w-[7rem] flex-row gap-3'>
+            <RecordButton
+              text={item.text}
+              loadingResult={loadingResult}
+              recordState={recordState}
+              setRecordState={(state) => setRecordState(state)}
+            />
+            <AudioReactRecorder state={recordState} onStop={onStopRecording} />
           </div>
-        )}
+        </div>
         <div
           className={classNames(
             'align-middle',
