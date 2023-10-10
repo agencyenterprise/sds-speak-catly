@@ -2,39 +2,39 @@ import axios, { AxiosResponse } from 'axios'
 import { NextRequest, NextResponse } from 'next/server'
 
 export interface CheckSpellingResponse {
-  words: {
+  words: Array<{
     label: string
-    syllables: {
+    syllables: Array<{
       label: string
       label_ipa: string
       score: number
-      phones: {
+      phones: Array<{
         label: string
         label_ipa: string
         confidence: number
         score: number
         error: boolean
-        sounds_like: {
+        sounds_like: Array<{
           label: string
           label_ipa: string
           confidence: number
-        }[]
-      }[]
-    }[]
-    phones: {
+        }>
+      }>
+    }>
+    phones: Array<{
       label: string
       label_ipa: string
       confidence: number
       score: number
       error: boolean
-      sounds_like: {
+      sounds_like: Array<{
         label: string
         label_ipa: string
         confidence: number
-      }[]
-    }[]
+      }>
+    }>
     score: number
-  }[]
+  }>
   score: number
   accent_predictions: {
     en_US: number

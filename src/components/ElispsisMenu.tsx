@@ -1,11 +1,11 @@
 import { Menu, Transition } from '@headlessui/react'
 import classNames from 'classnames'
-import { Fragment } from 'react'
+import { Fragment, MouseEvent } from 'react'
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 
 interface ElispsisMenuProps {
-  handleEdit: () => void
-  handleRemove: () => void
+  handleEdit: (event: MouseEvent) => void
+  handleRemove: (event: MouseEvent) => void
   color?: string
 }
 
@@ -14,7 +14,10 @@ export default function ElipsisMenu(props: ElispsisMenuProps) {
 
   return (
     <Menu as='div' className='relative flex-none'>
-      <Menu.Button className='-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900'>
+      <Menu.Button
+        onClick={(e) => e.stopPropagation()}
+        className='-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900'
+      >
         <span className='sr-only'>Open options</span>
 
         <EllipsisVerticalIcon
@@ -36,7 +39,10 @@ export default function ElipsisMenu(props: ElispsisMenuProps) {
           <Menu.Item>
             {({ active }) => (
               <a
-                onClick={handleEdit}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleEdit(e)
+                }}
                 className={classNames(
                   active ? 'bg-gray-50' : '',
                   'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
@@ -49,7 +55,10 @@ export default function ElipsisMenu(props: ElispsisMenuProps) {
           <Menu.Item>
             {({ active }) => (
               <a
-                onClick={handleRemove}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRemove(e)
+                }}
                 className={classNames(
                   active ? 'bg-gray-50' : '',
                   'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',

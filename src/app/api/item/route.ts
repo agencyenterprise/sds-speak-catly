@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma/client';
+import { prisma } from '@/lib/prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -10,11 +10,16 @@ export async function POST(req: NextRequest) {
       list: {
         connect: { id: listId },
       },
-      createdAt: new Date()
-    }
-  });
+      createdAt: new Date(),
+    },
+    include: {
+      userPronunciationMetrics: {
+        select: {
+          spellingMetrics: true,
+        },
+      },
+    },
+  })
 
   return NextResponse.json({ status: 201, data: newItem })
-
 }
-

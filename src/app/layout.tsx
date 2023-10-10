@@ -1,24 +1,20 @@
-import './globals.css'
-import { Inter, Lexend } from 'next/font/google'
 import clsx from 'clsx'
+import { Inter, Lexend } from 'next/font/google'
+import './globals.css'
 
+import { RecoilWrapper } from '@/components/RecoilWrapper'
+import { SDSWrapper } from '@/components/SdsWrapper'
+import NextAuthProvider from '@/lib/providers/next.auth.provider'
 import { type Metadata } from 'next'
 import Script from 'next/script'
-import NextAuthProvider from '@/lib/providers/next.auth.provider'
-import { SdsProjects } from 'sds-projects'
-import { SdsNavbar } from 'sds-projects'
-import { SDSWrapper } from '@/components/SdsWrapper'
-import { RecoilRoot } from 'recoil'
-import { RecoilWrapper } from '@/components/RecoilWrapper'
+import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: {
     template: '%s - Chatty Cat',
-    default:
-      'Chatty Cat - Improve your pronunciation',
+    default: 'Chatty Cat - Improve your pronunciation',
   },
-  description:
-    'Chatty Cat - Improve your pronunciation',
+  description: 'Chatty Cat - Improve your pronunciation',
 }
 
 const inter = Inter({
@@ -40,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang='en'
       className={clsx(
         'h-full scroll-smooth bg-white antialiased',
         inter.variable,
@@ -48,14 +44,12 @@ export default function RootLayout({
       )}
     >
       <head>
-        <Script src="https://scripts.simpleanalyticscdn.com/latest.js"></Script>
+        <Script src='https://scripts.simpleanalyticscdn.com/latest.js'></Script>
       </head>
-      <body className="flex flex-col h-full">
+      <body className='flex h-full flex-col bg-primary-100'>
         <RecoilWrapper>
           <NextAuthProvider>
-            <SDSWrapper>
-              {children}
-            </SDSWrapper>
+            <SDSWrapper>{children}</SDSWrapper>
           </NextAuthProvider>
         </RecoilWrapper>
       </body>

@@ -6,6 +6,8 @@ import { Item, List } from '@prisma/client'
 import axios, { AxiosResponse } from 'axios'
 import { useRecoilState } from 'recoil'
 import ListItemComponent from '@/components/ListItem'
+import { GetAllUserList } from '@/app/api/list/user/[userId]/route'
+import { ItemsWithMetrics } from '@/app/types/databaseAux.types'
 
 export default function ListComponent() {
   const [lists, setLists] = useRecoilState(ListsAtom)
@@ -14,10 +16,13 @@ export default function ListComponent() {
     const text = prompt('Enter the text of your item')
     if (!text) return
 
-    const { data } = await axios.post<AxiosResponse<Item>>('/api/item', {
-      text,
-      listId,
-    })
+    const { data } = await axios.post<AxiosResponse<ItemsWithMetrics>>(
+      '/api/item',
+      {
+        text,
+        listId,
+      },
+    )
 
     setLists((oldLists) => {
       const list = oldLists.find((list) => list.id === listId)
@@ -60,7 +65,8 @@ export default function ListComponent() {
     })
   }
 
-  function handleListRemove(listId: string) {
+  async function handleListRemove(listId: string) {
+    await axios.delete(`/api/list/${listId}`)
     setLists((oldLists) => {
       const newList = oldLists.filter((list) => list.id !== listId)
       return [...newList]
@@ -70,7 +76,10 @@ export default function ListComponent() {
   return (
     <div className='flex max-h-[89vh] flex-row flex-wrap gap-4'>
       {lists.map((list) => (
-        <div key={list.id} className='relative mt-6 w-96 '>
+        <div
+          key={list.id}
+          className='relative mt-6 min-w-[25%] max-w-[33%] flex-grow '
+        >
           <div className='sticky top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-blue-500 px-3 py-1.5 '>
             <h3 className='text-sm font-semibold leading-6 text-white'>
               {list.title}
@@ -83,10 +92,7 @@ export default function ListComponent() {
           </div>
           <ul role='list' className='divide-y divide-gray-200'>
             {list.items?.map((item) => (
-              <li
-                key={item.id}
-                className=' flex flex-row items-center justify-between gap-x-4 bg-slate-50 px-3 py-2'
-              >
+              <li key={item.id} className='bg-slate-50 px-3 py-2'>
                 <ListItemComponent item={item} />
               </li>
             ))}

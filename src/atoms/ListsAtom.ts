@@ -1,7 +1,7 @@
-import { GetAllUserList } from '@/app/api/list/user/[userId]/route'
+import { ListWithItemsAndMetrics } from '@/app/types/databaseAux.types'
 import { atom } from 'recoil'
 
-export const ListsAtom = atom<GetAllUserList[]>({
+export const ListsAtom = atom<ListWithItemsAndMetrics[]>({
   key: 'ListsAtom',
   default: [],
 })

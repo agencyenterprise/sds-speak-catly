@@ -1,5 +1,6 @@
 'use client'
 import { ListsAtom } from '@/atoms/ListsAtom'
+import { Footer } from '@/components/Footer'
 import ListComponent from '@/components/List'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import axios from 'axios'
@@ -60,10 +61,13 @@ export default function Home() {
 
   return (
     <>
-      <div className='flex min-h-full flex-col bg-primary-100'>
+      <div className='flex min-h-full flex-col '>
         <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
           <main className='flex-1'>
-            <button className='flex items-center rounded-full border border-blue-500 bg-transparent px-3 py-2 font-bold text-blue-500 hover:bg-blue-500 hover:text-white'>
+            <button
+              onClick={handleListCreation}
+              className='flex items-center rounded-full border border-blue-500 bg-transparent px-3 py-2 font-bold text-blue-500 hover:bg-blue-500 hover:text-white'
+            >
               <span className='mr-1 h-5 w-5'>
                 <PlusIcon />
               </span>
@@ -73,6 +77,7 @@ export default function Home() {
           </main>
         </div>
       </div>
+      <Footer />
     </>
   )
 }

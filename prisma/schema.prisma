@@ -40,17 +40,19 @@ model Account {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(STUDENT)
-  lists         List[]    @relation("userToList")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  sessions      Session[]
+  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  name                     String
+  email                    String?                    @unique
+  emailVerified            DateTime?
+  image                    String?
+  role                     Role                       @default(STUDENT)
+  lists                    List[]                     @relation("userToList")
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  accounts                 Account[]
+  sessions                 Session[]
+  SpellingMetrics          SpellingMetrics[]
+  UserPronunciationMetrics UserPronunciationMetrics[]
 }
 
 model List {
@@ -65,14 +67,73 @@ model List {
 }
 
 model Item {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  text        String
-  concludedAt DateTime?
-  score       Int?
-  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId      String    @db.ObjectId
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                         String                    @id @default(auto()) @map("_id") @db.ObjectId
+  text                       String
+  list                       List                      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId                     String                    @db.ObjectId
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  userPronunciationMetrics   UserPronunciationMetrics? @relation(fields: [userPronunciationMetricsId], references: [id])
+  userPronunciationMetricsId String?                   @unique @db.ObjectId
+}
+
+model UserPronunciationMetrics {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  spellingMetrics SpellingMetrics[]
+  userId          String            @db.ObjectId
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Item            Item?
+}
+
+type SpellingMetrics {
+  words              Words[]
+  score              Int
+  accent_predictions AccentPrediction
+  score_estimates    ScoreEstimates
+}
+
+type Words {
+  label     String
+  syllables Syllables[]
+  phones    Phones[]
+  score     Int
+}
+
+type Syllables {
+  label     String
+  label_ipa String
+  score     Int
+  phones    Phones[]
+}
+
+type Phones {
+  label       String
+  label_ipa   String
+  confidence  Int
+  score       Int
+  error       Boolean
+  sounds_like SoundsLike[]
+}
+
+type SoundsLike {
+  label      String
+  label_ipa  String
+  confidence Int
+}
+
+type AccentPrediction {
+  en_US Int
+  en_UK Int
+  en_AU Int
+}
+
+type ScoreEstimates {
+  ielts       String
+  toefl       String
+  cefr        String
+  pte_general String
 }
 
 enum Role {

@@ -5,8 +5,7 @@ import {
   CurrencyDollarIcon,
   HomeIcon,
 } from '@heroicons/react/24/outline'
-import { signIn, signOut, useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react'
 
 import { SdsNavbar } from 'sds-projects'
 
@@ -21,11 +20,21 @@ const navigation = [
 ]
 
 export function SDSWrapper({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession();
+  const { data: session } = useSession()
+
+  console.log(session)
+  function handleSignOut() {
+    signOut()
+  }
 
   return (
-    <SdsNavbar projectName="Chatty Cat" hideUserMenu navigation={navigation}>
-      <div className="h-[94vh] w-full overflow-auto">{children}</div>
+    <SdsNavbar
+      projectName='Chatty Cat'
+      navigation={navigation}
+      userSession={{ user: '' }}
+      onSignOut={handleSignOut}
+    >
+      <div className='w-full overflow-auto'>{children}</div>
     </SdsNavbar>
   )
 }

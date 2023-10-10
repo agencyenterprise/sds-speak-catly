@@ -1,7 +1,7 @@
 'use client'
 
 import { Footer } from '@/components/Footer'
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import { PricingPage } from 'sds-projects'
 
 const features = [
@@ -15,7 +15,6 @@ const features = [
 export default function Pricing() {
   return (
     <main>
-      <Header />
       <PricingPage
         customTheme={{
           colors: {
