@@ -3,7 +3,7 @@ import { type Config } from 'tailwindcss'
 export default {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    "./node_modules/sds-projects/**/*.{js,ts,jsx,tsx,mdx}",
+    './node_modules/sds-projects/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     fontSize: {
@@ -56,7 +56,7 @@ export default {
           200: '#bae6fd',
           300: '#7dd3fc',
           400: '#38bdf8',
-          500: '#0ea5e9',
+          500: '#1EBBD7',
           600: '#0284c7',
           700: '#0369a1',
           800: '#075985',
@@ -103,10 +103,5 @@ export default {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@headlessui/tailwindcss'),
-  ],
+  plugins: [require('@tailwindcss/forms'), require('@headlessui/tailwindcss')],
 } satisfies Config
-
-

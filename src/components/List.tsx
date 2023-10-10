@@ -80,7 +80,7 @@ export default function ListComponent() {
           key={list.id}
           className='relative mt-6 min-w-[25%] max-w-[33%] flex-grow '
         >
-          <div className='sticky top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-blue-500 px-3 py-1.5 '>
+          <div className='top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
             <h3 className='text-sm font-semibold leading-6 text-white'>
               {list.title}
             </h3>
@@ -101,7 +101,7 @@ export default function ListComponent() {
               className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'
               onClick={() => handleCreateItem(list.id)}
             >
-              <button className='flex items-center rounded-full border border-blue-500 bg-transparent px-3 py-1 font-bold text-blue-500 hover:bg-blue-500 hover:text-white'>
+              <button className='flex items-center rounded-full border border-primary-500 bg-transparent px-3 py-1 font-bold text-primary-500 hover:bg-primary-500 hover:text-white'>
                 <span className='mr-1 h-5 w-5'>
                   <PlusIcon />
                 </span>

@@ -11,10 +11,10 @@ import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Chatty Cat',
-    default: 'Chatty Cat - Improve your pronunciation',
+    template: '%s - SpeakCatly',
+    default: 'Speak Catly - Improve your pronunciation',
   },
-  description: 'Chatty Cat - Improve your pronunciation',
+  description: 'Speak Catly - Improve your pronunciation',
 }
 
 const inter = Inter({
@@ -46,7 +46,7 @@ export default function RootLayout({
       <head>
         <Script src='https://scripts.simpleanalyticscdn.com/latest.js'></Script>
       </head>
-      <body className='flex h-full flex-col bg-primary-100'>
+      <body className='flex h-full flex-col'>
         <RecoilWrapper>
           <NextAuthProvider>
             <SDSWrapper>{children}</SDSWrapper>

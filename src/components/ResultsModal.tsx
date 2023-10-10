@@ -24,7 +24,7 @@ export default function ResultsModalComponent(props: ResultsModalProps) {
           <div id='result' className='rounded-lg bg-white p-2 md:p-6 md:shadow'>
             <h2 className='mb-4 text-2xl font-bold'>Results</h2>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='rounded bg-blue-100 p-4'>
+              <div className='rounded bg-primary-100 p-4'>
                 <h3 className='mb-2 text-center font-semibold'>
                   Overall Score
                 </h3>

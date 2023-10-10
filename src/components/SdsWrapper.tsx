@@ -1,17 +1,13 @@
 'use client'
 
-import {
-  BuildingOfficeIcon,
-  CurrencyDollarIcon,
-  HomeIcon,
-} from '@heroicons/react/24/outline'
+import { BuildingOfficeIcon, HomeIcon } from '@heroicons/react/24/outline'
 import { signOut, useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 
 import { SdsNavbar } from 'sds-projects'
 
 const navigation = [
   { name: 'Home', page: '/', icon: HomeIcon },
-  { name: 'Pricing', page: '/pricing', icon: CurrencyDollarIcon },
   {
     name: 'Who made this?',
     page: '/who-made-this',
@@ -20,21 +16,36 @@ const navigation = [
 ]
 
 export function SDSWrapper({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession()
+  const { data } = useSession()
 
-  console.log(session)
+  const userSession = {
+    data: {
+      user: {
+        name: data?.user?.name,
+        email: data?.user?.email,
+      },
+      token: {
+        image: data?.user?.image,
+      },
+    },
+  }
+
   function handleSignOut() {
     signOut()
+    redirect('/login')
   }
 
   return (
     <SdsNavbar
-      projectName='Chatty Cat'
+      projectName='Speak Catly'
+      hideUserMenu={!data}
       navigation={navigation}
-      userSession={{ user: '' }}
+      userSession={userSession}
+      hideYourProfileButton
+      hideSettingsButton
       onSignOut={handleSignOut}
     >
-      <div className='w-full overflow-auto'>{children}</div>
+      <div className='h-full w-full overflow-auto'>{children}</div>
     </SdsNavbar>
   )
 }

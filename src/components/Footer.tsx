@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className='text-ae-orange fixed bottom-0 flex w-full flex-row items-center justify-center gap-4 bg-transparent px-2 pb-10 pt-20'>
+    <footer className='text-ae-orange flex w-full flex-row items-center justify-center gap-4 bg-transparent px-2 pb-10 pt-20'>
       <h1 className='text-sm text-gray-500'>{'Made with ❤️ by'}</h1>
       <svg
         xmlns='http://www.w3.org/2000/svg'
