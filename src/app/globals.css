@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .input {
+    @apply w-full rounded-md border-b-2 border-transparent border-b-primary-500 p-2 px-4 text-sm shadow-none outline-none hover:border-primary-600 focus:border-primary-600 active:border-primary-600;
+    box-shadow: none !important;
+  }
+  .input::placeholder {
+    @apply text-primary-400;
+  }
+  .no-outline {
+    @apply border-transparent shadow-none outline-none focus:border-transparent focus:shadow-none focus:outline-none active:border-transparent active:shadow-none active:outline-none;
+    box-shadow: none !important;
+  }
+}
+
 .audio-react-recorder {
   display: none;
 }

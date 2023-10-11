@@ -86,7 +86,7 @@ export default function ResultsModalComponent(props: ResultsModalProps) {
                     {result.score_estimates.toefl}
                   </span>
                 </p>
-                <p className='flex flex-row gap-2 '>
+                <p className='flex flex-row justify-center gap-2'>
                   CEFR:{' '}
                   {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((grade, index) => (
                     <span

@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest) {
   const { userId, spellingMetrics, itemId } = await req.json()
 
-  console.log(itemId, userId)
   const newMetrics = await prisma.userPronunciationMetrics.create({
     data: {
       userId,

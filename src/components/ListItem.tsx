@@ -9,7 +9,8 @@ import AudioReactRecorder, { RecordState } from 'audio-react-recorder'
 import axios, { AxiosResponse } from 'axios'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { FaCheck, FaX } from 'react-icons/fa6'
 import { useSetRecoilState } from 'recoil'
 
 interface ListItemProps {
@@ -19,6 +20,8 @@ interface ListItemProps {
 export default function ListItemComponent({ item }: ListItemProps) {
   const [recordState, setRecordState] = useState<RecordState>(RecordState.STOP)
   const [loadingResult, setLoadingResult] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const setLists = useSetRecoilState(ListsAtom)
   const modal = useResultModal()
   const { data: session } = useSession()
@@ -82,7 +85,6 @@ export default function ListItemComponent({ item }: ListItemProps) {
         }
         return list
       })
-      console.log('newList', newList)
       return newList
     })
   }
@@ -91,12 +93,14 @@ export default function ListItemComponent({ item }: ListItemProps) {
     modal.openModal({})
   }
 
-  async function handleItemEdit(listId: string, itemId: string) {
-    const newText = prompt('Enter the new text')
-    if (!newText) return
+  async function handleItemEdit() {
+    if (!textAreaRef.current?.value) return
+
+    const newText = textAreaRef.current.value
+    const listId = item.listId
 
     const { data } = await axios.patch<AxiosResponse<Item>>(
-      `/api/item/${itemId}`,
+      `/api/item/${item.id}`,
       {
         text: newText,
       },
@@ -104,20 +108,21 @@ export default function ListItemComponent({ item }: ListItemProps) {
 
     const newItem = data.data
 
+    setIsEditing(false)
     setLists((oldLists) => {
       return oldLists.map((list) => {
         if (list.id === listId) {
           return {
             ...list,
             items: [
-              ...list.items.map((item) => {
-                if (item.id === itemId) {
+              ...list.items.map((oldItem) => {
+                if (oldItem.id === item.id) {
                   return {
-                    ...item,
+                    ...oldItem,
                     text: newItem.text,
                   }
                 }
-                return item
+                return oldItem
               }),
             ],
           }
@@ -128,8 +133,6 @@ export default function ListItemComponent({ item }: ListItemProps) {
   }
 
   async function handleItemRemove(listId: string, itemId: string) {
-    await axios.delete<AxiosResponse<Item>>(`/api/item/${itemId}`)
-
     setLists((oldLists) => {
       return oldLists.map((list) => {
         if (list.id === listId) {
@@ -145,11 +148,48 @@ export default function ListItemComponent({ item }: ListItemProps) {
         return list
       })
     })
+
+    await axios.delete<AxiosResponse<Item>>(`/api/item/${itemId}`)
   }
 
-  return (
-    <>
-      {modal.ModalComponent(lastSpellingMetric)}
+  function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleItemEdit()
+    }
+  }
+
+  function ContentRender() {
+    if (isEditing) {
+      return (
+        <div className='flex flex-row items-center justify-end gap-x-5 rounded bg-slate-50 px-3 py-1'>
+          <textarea
+            className='input w-1/2 leading-[0.95rem]'
+            placeholder='Enter the text...'
+            autoFocus
+            rows={1}
+            defaultValue={item.text}
+            ref={textAreaRef}
+            onKeyDown={handleReturn}
+          />
+          <div className='flex flex-row items-center gap-2'>
+            <span
+              onClick={handleItemEdit}
+              className='cursor-pointer text-2xl text-green-500'
+            >
+              <FaCheck />
+            </span>
+            <span
+              className='cursor-pointer text-xl text-red-500'
+              onClick={() => setIsEditing(false)}
+            >
+              <FaX />
+            </span>
+          </div>
+        </div>
+      )
+    }
+    return (
       <div
         className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
         onClick={handleListItemClick}
@@ -197,10 +237,17 @@ export default function ListItemComponent({ item }: ListItemProps) {
           </div>
         </div>
         <ElipsisMenu
-          handleEdit={() => handleItemEdit(item.listId, item.id)}
+          handleEdit={() => setIsEditing(true)}
           handleRemove={() => handleItemRemove(item.listId, item.id)}
         />
       </div>
+    )
+  }
+
+  return (
+    <>
+      {modal.ModalComponent(lastSpellingMetric)}
+      <ContentRender />
     </>
   )
 }

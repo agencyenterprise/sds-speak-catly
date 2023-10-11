@@ -2,6 +2,7 @@
 
 import { Footer } from '@/components/Footer'
 import Header from '@/components/Header'
+import { FaCheck } from 'react-icons/fa6'
 import { PricingPage } from 'sds-projects'
 
 const features = [
@@ -18,14 +19,14 @@ export default function Pricing() {
       <PricingPage
         customTheme={{
           colors: {
-            text: 'text-white',
-            primaryButton:
-              'text-[#401C57] bg-white border border-pink-500 hover:opacity-80',
-            secondaryButton: 'cursor-not-allowed text-[#401C57] bg-white/40',
-            icon: 'text-pink-500',
-            primaryCard: 'bg-[#401C57] text-white',
-            secondaryCard: 'bg-[#6F216E]',
-            badge: 'text-pink-400 bg-pink-100/20',
+            badge: 'bg-blue-300',
+            primaryButton: 'bg-blue-500 hover:bg-blue-600 text-white',
+            firstUniqueText: 'text-blue-500',
+            secondUniqueText: 'text-blue-500',
+            text: 'text-gray-700',
+            secondaryButton:
+              'text-blue-500 ring-1 ring-inset ring-blue-500 hover:ring-blue-600 focus-visible:outline-blue-600 hover:bg-blue-50',
+            icon: 'text-blue-500',
           },
         }}
         freeTierFeatures={features}

@@ -1,6 +1,10 @@
 'use client'
 
-import { BuildingOfficeIcon, HomeIcon } from '@heroicons/react/24/outline'
+import {
+  BuildingOfficeIcon,
+  HomeIcon,
+  CurrencyDollarIcon,
+} from '@heroicons/react/24/outline'
 import { signOut, useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 
@@ -8,6 +12,7 @@ import { SdsNavbar } from 'sds-projects'
 
 const navigation = [
   { name: 'Home', page: '/', icon: HomeIcon },
+  { name: 'Pricing', page: '/pricing', icon: CurrencyDollarIcon },
   {
     name: 'Who made this?',
     page: '/who-made-this',

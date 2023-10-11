@@ -8,12 +8,15 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import axios, { AxiosResponse } from 'axios'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useEffect, useRef, useState } from 'react'
+import { FaCheck, FaX } from 'react-icons/fa6'
+import { useRecoilState } from 'recoil'
 
 export default function Home() {
-  const setLists = useSetRecoilState(ListsAtom)
+  const [lists, setLists] = useRecoilState(ListsAtom)
   const [loading, setLoading] = useState(true)
+  const [isCreating, setIsCreating] = useState(false)
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const { status, data: session } = useSession()
 
   useEffect(() => {
@@ -42,11 +45,12 @@ export default function Home() {
       })
   }, [session])
 
-  async function handleListCreation() {
+  async function handleCreateList() {
     if (!session?.user?.id) return
+    if (!textAreaRef.current?.value) return
+    setIsCreating(false)
 
-    const title = prompt('Enter the title of your list')
-    if (!title) return
+    const title = textAreaRef.current.value
 
     const { data } = await axios.post<AxiosResponse<ListWithItemsAndMetrics>>(
       `/api/list`,
@@ -62,22 +66,74 @@ export default function Home() {
     })
   }
 
-  return (
-    <>
-      {loading && <Spinner useLogo={true} message={''} />}
-      <div className='flex min-h-full flex-col justify-between bg-primary-100'>
-        <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
-          <main className='flex-1'>
+  function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleCreateList()
+    }
+  }
+
+  function CreatingList() {
+    if (!isCreating) {
+      return (
+        <div className='relative min-w-[25%] max-w-[33%] flex-grow'>
+          <div className='top-0 z-10 flex h-[50px] justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
             <button
-              onClick={handleListCreation}
-              className='flex items-center rounded-full border border-primary-500 bg-transparent px-3 py-2 font-bold text-primary-500 hover:bg-primary-500 hover:text-white'
+              onClick={() => setIsCreating(true)}
+              className='flex items-center rounded-full border border-white bg-primary-500 px-4 py-1 font-bold text-white hover:bg-primary-300'
             >
               <span className='mr-1 h-5 w-5'>
                 <PlusIcon />
               </span>
               Create new list
             </button>
-            <ListComponent />
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className='relative min-w-[25%] max-w-[33%] flex-grow '>
+        <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1 '>
+          <textarea
+            className='input w-1/2 leading-[0.95rem]'
+            placeholder='Enter the list title...'
+            autoFocus
+            rows={1}
+            ref={textAreaRef}
+            onKeyDown={handleReturn}
+          />
+          <div className='flex flex-row items-center gap-3 rounded-lg bg-white px-2'>
+            <span
+              onClick={handleCreateList}
+              className='cursor-pointer text-2xl text-green-500'
+            >
+              <FaCheck />
+            </span>
+            <span
+              className='cursor-pointer text-xl text-red-500'
+              onClick={() => setIsCreating(false)}
+            >
+              <FaX />
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {loading && <Spinner useLogo={true} message={''} />}
+      <div className='flex min-h-full flex-col justify-between bg-primary-50'>
+        <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
+          <main className='flex-1'>
+            <div className='flex max-h-[89vh] flex-row flex-wrap gap-4'>
+              {lists.map((list) => (
+                <ListComponent list={list} />
+              ))}
+              <CreatingList />
+            </div>
           </main>
         </div>
         <Footer />

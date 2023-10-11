@@ -38,7 +38,5 @@ export async function GET(
     },
   })
 
-  console.log(allUserLists[0].items)
-
   return NextResponse.json({ status: 201, data: allUserLists })
 }
