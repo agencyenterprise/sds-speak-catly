@@ -4,6 +4,7 @@ import { ListsAtom } from '@/atoms/ListsAtom'
 import { Footer } from '@/components/Footer'
 import ListComponent from '@/components/List'
 import { Spinner } from '@/components/Spinner'
+import { useHandleList } from '@/hooks/useHandleList'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import axios, { AxiosResponse } from 'axios'
 import { useSession } from 'next-auth/react'
@@ -19,6 +20,8 @@ export default function Home() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const { status, data: session } = useSession()
 
+  const handleList = useHandleList()
+
   useEffect(() => {
     if (status === 'loading') {
       return
@@ -32,37 +35,29 @@ export default function Home() {
   useEffect(() => {
     if (!session?.user?.id) return
 
-    axios
-      .get(`/api/list/user/${session.user.id}`)
-      .then(({ data }) => {
-        setLists(data.data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
+    handleList
+      .handleGetList(session?.user?.id)
+      .then((data) => {
+        setLists(data)
         setLoading(false)
+      })
+      .catch((err) => {
+        console.log(err)
       })
   }, [session])
 
   async function handleCreateList() {
-    if (!session?.user?.id) return
-    if (!textAreaRef.current?.value) return
-    setIsCreating(false)
-
-    const title = textAreaRef.current.value
-
-    const { data } = await axios.post<AxiosResponse<ListWithItemsAndMetrics>>(
-      `/api/list`,
-      {
-        title,
-        userId: session.user.id,
-        items: [],
-      },
+    const data = await handleList.handleCreateList(
+      session?.user?.id,
+      textAreaRef.current?.value,
     )
 
+    if (!data) return
+    //TODO: adicionar toast de erro
+
+    setIsCreating(false)
     setLists((prev) => {
-      return [...prev, data.data]
+      return [...prev, data]
     })
   }
 

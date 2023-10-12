@@ -5,16 +5,15 @@ interface RecordButtonProps {
   recordState: RecordState
   setRecordState: (state: RecordState) => void
   loadingResult: boolean
-  text: string
 }
 
 export default function RecordButton(props: RecordButtonProps) {
-  const { recordState, setRecordState, loadingResult, text } = props
+  const { recordState, setRecordState, loadingResult } = props
 
   return (
     <>
       <button
-        disabled={loadingResult || !text.length}
+        disabled={loadingResult}
         onClick={(e) => {
           e.stopPropagation()
           recordState != RecordState.START

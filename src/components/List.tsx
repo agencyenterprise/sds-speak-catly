@@ -1,16 +1,13 @@
 'use client'
-import {
-  ItemsWithMetrics,
-  ListWithItemsAndMetrics,
-} from '@/app/types/databaseAux.types'
+import { ListWithItemsAndMetrics } from '@/app/types/databaseAux.types'
 import { ListsAtom } from '@/atoms/ListsAtom'
 import ElipsisMenu from '@/components/ElispsisMenu'
-import ListItemComponent from '@/components/ListItem'
+import ListItem from '@/components/ListItem'
+import { useHandleItem } from '@/hooks/useHandleItem'
+import { useHandleList } from '@/hooks/useHandleList'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import { List } from '@prisma/client'
-import axios, { AxiosResponse } from 'axios'
 import { useRef, useState } from 'react'
-import { FaCheck, FaX } from 'react-icons/fa6'
+import { FaCheck, FaSpellCheck, FaX } from 'react-icons/fa6'
 import { useSetRecoilState } from 'recoil'
 
 export default function ListComponent({
@@ -19,83 +16,67 @@ export default function ListComponent({
   list: ListWithItemsAndMetrics
 }) {
   const setLists = useSetRecoilState(ListsAtom)
-  const [isCreating, setIsCreating] = useState(false)
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
+  const [isCreatingItem, setIsCreatingItem] = useState(false)
+  const [isEditingList, setIsEditingList] = useState(false)
+  const newItemRef = useRef<HTMLTextAreaElement>(null)
+  const editingListRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleItem = useHandleItem()
+  const handleList = useHandleList()
 
   async function handleCreateItem() {
-    if (!textAreaRef.current?.value) return
+    if (!newItemRef.current?.value) return
 
-    setIsCreating(false)
-
-    const { data } = await axios.post<AxiosResponse<ItemsWithMetrics>>(
-      '/api/item',
-      {
-        text: textAreaRef.current.value,
-        listId: list.id,
-      },
+    const updatedList = await handleItem.handleCreateItem(
+      list.id,
+      newItemRef.current?.value,
     )
 
-    setLists((oldLists) => {
-      const foundList = oldLists.find((oldList) => oldList.id === list.id)
-      if (foundList) {
-        return oldLists.map((oldList) => {
-          if (oldList.id === list.id) {
-            return {
-              ...oldList,
-              items: [...oldList.items, data.data],
-            }
-          }
-          return oldList
-        })
-      }
-
-      return oldLists
-    })
+    setLists(updatedList)
+    setIsCreatingItem(false)
   }
 
-  async function handleListEdit(listId: string) {
-    const newTitle = prompt('Enter the new title')
-    if (!newTitle) return
+  async function handleEditList() {
+    if (!editingListRef.current?.value) return
 
-    const { data } = await axios.patch<AxiosResponse<List>>(
-      `/api/list/${listId}`,
-      {
-        title: newTitle,
-      },
+    setIsEditingList(false)
+    const updatedList = await handleList.handleListEdit(
+      list.id,
+      editingListRef.current?.value,
     )
-    setLists((oldLists) => {
-      return oldLists.map((list) => {
-        if (list.id === listId) {
-          return {
-            ...list,
-            ...data.data,
-          }
-        }
-        return list
-      })
-    })
+
+    setLists(updatedList)
   }
 
   async function handleListRemove(listId: string) {
-    setLists((oldLists) => {
-      const newList = oldLists.filter((list) => list.id !== listId)
-      return [...newList]
-    })
-    await axios.delete(`/api/list/${listId}`)
+    const updatedList = await handleList.handleListRemove(listId)
+    setLists(updatedList)
   }
-  function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+
+  function handleListEditReturn(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
     if (event.key === 'Enter') {
+      event.preventDefault()
+      handleEditList()
+    }
+  }
+
+  function handleItemCreateReturn(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
       handleCreateItem()
     }
   }
 
   function CreatingLine() {
-    if (!isCreating) {
+    if (!isCreatingItem) {
       return (
         <li
-          key={'CREATE_NEW' + list.id}
           className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'
-          onClick={() => setIsCreating(true)}
+          onClick={() => setIsCreatingItem(true)}
         >
           <button className='flex items-center rounded-full border border-primary-500 bg-transparent px-3 py-1 font-bold text-primary-500 hover:bg-primary-500 hover:text-white'>
             <span className='mr-1 h-5 w-5'>
@@ -108,17 +89,14 @@ export default function ListComponent({
     }
 
     return (
-      <li
-        key={'CREATE_NEW' + list.id}
-        className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'
-      >
+      <li className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'>
         <textarea
           className='input w-1/2 leading-[0.95rem]'
           placeholder='Enter the text...'
           autoFocus
           rows={1}
-          ref={textAreaRef}
-          onKeyDown={handleReturn}
+          ref={newItemRef}
+          onKeyDown={handleItemCreateReturn}
         />
         <div className='flex flex-row items-center gap-2'>
           <span
@@ -129,7 +107,7 @@ export default function ListComponent({
           </span>
           <span
             className='cursor-pointer text-xl text-red-500'
-            onClick={() => setIsCreating(false)}
+            onClick={() => setIsCreatingItem(false)}
           >
             <FaX />
           </span>
@@ -139,21 +117,49 @@ export default function ListComponent({
   }
 
   return (
-    <div key={list.id} className='relative min-w-[25%] max-w-[33%] flex-grow '>
-      <div className='top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-3 '>
-        <h3 className='text-md font-semibold leading-6 text-white'>
-          {list.title}
-        </h3>
-        <ElipsisMenu
-          handleEdit={() => handleListEdit(list.id)}
-          handleRemove={() => handleListRemove(list.id)}
-          color='white'
-        />
-      </div>
+    <div className='relative min-w-[25%] max-w-[33%] flex-grow '>
+      {!isEditingList ? (
+        <div className='top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-3 '>
+          <h3 className='text-md font-semibold leading-6 text-white'>
+            {list.title}
+          </h3>
+          <ElipsisMenu
+            handleEdit={() => setIsEditingList(true)}
+            handleRemove={() => handleListRemove(list.id)}
+            color='white'
+          />
+        </div>
+      ) : (
+        <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
+          <textarea
+            className='input w-1/2 leading-[0.95rem]'
+            placeholder='Enter the list title...'
+            autoFocus
+            defaultValue={list.title}
+            rows={1}
+            ref={editingListRef}
+            onKeyDown={handleListEditReturn}
+          />
+          <div className='flex flex-row items-center gap-3 rounded-lg bg-white px-2'>
+            <span
+              onClick={handleEditList}
+              className='cursor-pointer text-2xl text-green-500'
+            >
+              <FaCheck />
+            </span>
+            <span
+              className='cursor-pointer text-xl text-red-500'
+              onClick={() => setIsEditingList(false)}
+            >
+              <FaX />
+            </span>
+          </div>
+        </div>
+      )}
       <ul role='list' className='divide-y divide-gray-200'>
         {list.items?.map((item) => (
           <li key={item.id} className='bg-slate-50 px-3 py-2'>
-            <ListItemComponent item={item} />
+            <ListItem item={item} />
           </li>
         ))}
         <CreatingLine />

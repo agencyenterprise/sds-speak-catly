@@ -3,6 +3,7 @@ import { ItemsWithMetrics } from '@/app/types/databaseAux.types'
 import { ListsAtom } from '@/atoms/ListsAtom'
 import ElipsisMenu from '@/components/ElispsisMenu'
 import RecordButton from '@/components/RecordButton'
+import { useHandleItem } from '@/hooks/useHandleItem'
 import { useResultModal } from '@/hooks/useModal'
 import { Item, SpellingMetrics, UserPronunciationMetrics } from '@prisma/client'
 import AudioReactRecorder, { RecordState } from 'audio-react-recorder'
@@ -22,9 +23,11 @@ export default function ListItemComponent({ item }: ListItemProps) {
   const [loadingResult, setLoadingResult] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
+
   const setLists = useSetRecoilState(ListsAtom)
-  const modal = useResultModal()
   const { data: session } = useSession()
+  const handleItem = useHandleItem()
+  const modal = useResultModal()
 
   const spellingMetrics = item.userPronunciationMetrics?.spellingMetrics
   const lastSpellingMetric = spellingMetrics?.[spellingMetrics.length - 1]
@@ -43,7 +46,8 @@ export default function ListItemComponent({ item }: ListItemProps) {
     modal.openModal({})
   }
 
-  async function onStopRecording(param: any) {
+  async function onStopRecording(param: { blob: Blob }) {
+    console.log({ param })
     setLoadingResult(true)
     const reader = new FileReader()
     reader.readAsDataURL(param.blob)
@@ -58,35 +62,21 @@ export default function ListItemComponent({ item }: ListItemProps) {
   async function updateSpellingMetrics(spellingMetrics: SpellingMetrics) {
     const userId = session?.user?.id
 
-    const { data } = await axios
-      .post<AxiosResponse<ItemsWithMetrics>>('/api/spellingMetrics', {
-        spellingMetrics,
-        userId,
+    if (!userId) return
+    console.log(item.listId, item.id, userId, spellingMetrics)
+
+    const updatedList = await handleItem
+      .updateSpellingMetrics({
+        listId: item.listId,
         itemId: item.id,
+        userId,
+        spellingMetrics,
       })
       .finally(() => {
         setLoadingResult(false)
       })
 
-    setLists((oldLists) => {
-      const newList = oldLists.map((list) => {
-        if (list.id === item.listId) {
-          return {
-            ...list,
-            items: [
-              ...list.items.map((prevItem) => {
-                if (prevItem.id === item.id) {
-                  return data.data
-                }
-                return prevItem
-              }),
-            ],
-          }
-        }
-        return list
-      })
-      return newList
-    })
+    setLists(updatedList)
   }
 
   function handleListItemClick() {
@@ -96,60 +86,18 @@ export default function ListItemComponent({ item }: ListItemProps) {
   async function handleItemEdit() {
     if (!textAreaRef.current?.value) return
 
-    const newText = textAreaRef.current.value
-    const listId = item.listId
-
-    const { data } = await axios.patch<AxiosResponse<Item>>(
-      `/api/item/${item.id}`,
-      {
-        text: newText,
-      },
+    const updatedLists = await handleItem.handleItemEdit(
+      item.id,
+      item.listId,
+      textAreaRef.current?.value,
     )
 
-    const newItem = data.data
-
     setIsEditing(false)
-    setLists((oldLists) => {
-      return oldLists.map((list) => {
-        if (list.id === listId) {
-          return {
-            ...list,
-            items: [
-              ...list.items.map((oldItem) => {
-                if (oldItem.id === item.id) {
-                  return {
-                    ...oldItem,
-                    text: newItem.text,
-                  }
-                }
-                return oldItem
-              }),
-            ],
-          }
-        }
-        return list
-      })
-    })
+    setLists(updatedLists)
   }
 
   async function handleItemRemove(listId: string, itemId: string) {
-    setLists((oldLists) => {
-      return oldLists.map((list) => {
-        if (list.id === listId) {
-          return {
-            ...list,
-            items: [
-              ...list.items.filter((item) => {
-                return item.id !== itemId
-              }),
-            ],
-          }
-        }
-        return list
-      })
-    })
-
-    await axios.delete<AxiosResponse<Item>>(`/api/item/${itemId}`)
+    await handleItem.handleItemRemove(listId, itemId)
   }
 
   function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -159,9 +107,10 @@ export default function ListItemComponent({ item }: ListItemProps) {
     }
   }
 
-  function ContentRender() {
-    if (isEditing) {
-      return (
+  return (
+    <>
+      {modal.ModalComponent(lastSpellingMetric)}
+      {isEditing ? (
         <div className='flex flex-row items-center justify-end gap-x-5 rounded bg-slate-50 px-3 py-1'>
           <textarea
             className='input w-1/2 leading-[0.95rem]'
@@ -187,67 +136,58 @@ export default function ListItemComponent({ item }: ListItemProps) {
             </span>
           </div>
         </div>
-      )
-    }
-    return (
-      <div
-        className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
-        onClick={handleListItemClick}
-      >
-        <div className='flex flex-row items-center gap-4'>
-          <div className='flex flex-row items-center gap-2 text-2xl text-black'>
-            <div className='min-w-[65px] pr-4'>
-              {lastSpellingMetric?.score ? (
-                <div
-                  className={classNames(
-                    'flex flex-row items-center gap-2 font-bold text-black',
-                    lastSpellingMetric.score >= 80
-                      ? 'text-green-500'
-                      : lastSpellingMetric.score >= 50
-                      ? 'text-yellow-400'
-                      : 'text-red-500',
-                  )}
-                >
-                  {lastSpellingMetric.score}
-                </div>
-              ) : (
-                <>{'--'}</>
+      ) : (
+        <div
+          className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
+          onClick={handleListItemClick}
+        >
+          <div className='flex flex-row items-center gap-4'>
+            <div className='flex flex-row items-center gap-2 text-2xl text-black'>
+              <div className='min-w-[65px] pr-4'>
+                {lastSpellingMetric?.score ? (
+                  <div
+                    className={classNames(
+                      'flex flex-row items-center gap-2 font-bold text-black',
+                      lastSpellingMetric.score >= 80
+                        ? 'text-green-500'
+                        : lastSpellingMetric.score >= 50
+                        ? 'text-yellow-400'
+                        : 'text-red-500',
+                    )}
+                  >
+                    {lastSpellingMetric.score}
+                  </div>
+                ) : (
+                  <>{'--'}</>
+                )}
+              </div>
+              <div className='flex min-w-[7rem] flex-row gap-3'>
+                <RecordButton
+                  loadingResult={loadingResult}
+                  recordState={recordState}
+                  setRecordState={(state) => setRecordState(state)}
+                />
+                <AudioReactRecorder
+                  state={recordState}
+                  onStop={onStopRecording}
+                />
+              </div>
+            </div>
+            <div
+              className={classNames(
+                'align-middle',
+                recordState !== RecordState.START && 'line-clamp-2 ',
               )}
-            </div>
-            <div className='flex min-w-[7rem] flex-row gap-3'>
-              <RecordButton
-                text={item.text}
-                loadingResult={loadingResult}
-                recordState={recordState}
-                setRecordState={(state) => setRecordState(state)}
-              />
-              <AudioReactRecorder
-                state={recordState}
-                onStop={onStopRecording}
-              />
+            >
+              <p className='text-sm leading-5 text-gray-900'>{item.text}</p>
             </div>
           </div>
-          <div
-            className={classNames(
-              'align-middle',
-              recordState !== RecordState.START && 'line-clamp-2 ',
-            )}
-          >
-            <p className='text-sm leading-5 text-gray-900'>{item.text}</p>
-          </div>
+          <ElipsisMenu
+            handleEdit={() => setIsEditing(true)}
+            handleRemove={() => handleItemRemove(item.listId, item.id)}
+          />
         </div>
-        <ElipsisMenu
-          handleEdit={() => setIsEditing(true)}
-          handleRemove={() => handleItemRemove(item.listId, item.id)}
-        />
-      </div>
-    )
-  }
-
-  return (
-    <>
-      {modal.ModalComponent(lastSpellingMetric)}
-      <ContentRender />
+      )}
     </>
   )
 }
