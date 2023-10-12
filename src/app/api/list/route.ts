@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma/client'
 import { Item } from '@prisma/client'
 
 export async function POST(req: NextRequest) {
-  const { title, userId, items } = await req.json();
+  const { title, userId, items } = await req.json()
 
   const newList = await prisma.list.create({
     data: {
@@ -21,16 +21,21 @@ export async function POST(req: NextRequest) {
     select: {
       id: true,
       title: true,
-      items: true,
+      items: {
+        select: {
+          id: true,
+          text: true,
+          createdAt: true,
+        },
+      },
       createdBy: {
         select: {
           id: true,
           name: true,
         },
       },
-    }
+    },
   })
 
   return NextResponse.json({ status: 201, data: newList })
 }
-

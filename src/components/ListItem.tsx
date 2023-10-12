@@ -5,13 +5,12 @@ import ElipsisMenu from '@/components/ElispsisMenu'
 import RecordButton from '@/components/RecordButton'
 import { useHandleItem } from '@/hooks/useHandleItem'
 import { useResultModal } from '@/hooks/useModal'
-import { Item, SpellingMetrics, UserPronunciationMetrics } from '@prisma/client'
+import { SpellingMetrics } from '@prisma/client'
 import AudioReactRecorder, { RecordState } from 'audio-react-recorder'
 import axios, { AxiosResponse } from 'axios'
 import classNames from 'classnames'
 import { useSession } from 'next-auth/react'
-import { useEffect, useRef, useState } from 'react'
-import { FaCheck, FaX } from 'react-icons/fa6'
+import { useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 
 interface ListItemProps {
@@ -21,8 +20,6 @@ interface ListItemProps {
 export default function ListItemComponent({ item }: ListItemProps) {
   const [recordState, setRecordState] = useState<RecordState>(RecordState.STOP)
   const [loadingResult, setLoadingResult] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
 
   const setLists = useSetRecoilState(ListsAtom)
   const { data: session } = useSession()
@@ -63,7 +60,6 @@ export default function ListItemComponent({ item }: ListItemProps) {
     const userId = session?.user?.id
 
     if (!userId) return
-    console.log(item.listId, item.id, userId, spellingMetrics)
 
     const updatedList = await handleItem
       .updateSpellingMetrics({
@@ -83,111 +79,62 @@ export default function ListItemComponent({ item }: ListItemProps) {
     modal.openModal({})
   }
 
-  async function handleItemEdit() {
-    if (!textAreaRef.current?.value) return
-
-    const updatedLists = await handleItem.handleItemEdit(
-      item.id,
-      item.listId,
-      textAreaRef.current?.value,
-    )
-
-    setIsEditing(false)
-    setLists(updatedLists)
-  }
-
   async function handleItemRemove(listId: string, itemId: string) {
     await handleItem.handleItemRemove(listId, itemId)
-  }
-
-  function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      handleItemEdit()
-    }
   }
 
   return (
     <>
       {modal.ModalComponent(lastSpellingMetric)}
-      {isEditing ? (
-        <div className='flex flex-row items-center justify-end gap-x-5 rounded bg-slate-50 px-3 py-1'>
-          <textarea
-            className='input w-1/2 leading-[0.95rem]'
-            placeholder='Enter the text...'
-            autoFocus
-            rows={1}
-            defaultValue={item.text}
-            ref={textAreaRef}
-            onKeyDown={handleReturn}
-          />
-          <div className='flex flex-row items-center gap-2'>
-            <span
-              onClick={handleItemEdit}
-              className='cursor-pointer text-2xl text-green-500'
-            >
-              <FaCheck />
-            </span>
-            <span
-              className='cursor-pointer text-xl text-red-500'
-              onClick={() => setIsEditing(false)}
-            >
-              <FaX />
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div
-          className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
-          onClick={handleListItemClick}
-        >
-          <div className='flex flex-row items-center gap-4'>
-            <div className='flex flex-row items-center gap-2 text-2xl text-black'>
-              <div className='min-w-[65px] pr-4'>
-                {lastSpellingMetric?.score ? (
-                  <div
-                    className={classNames(
-                      'flex flex-row items-center gap-2 font-bold text-black',
-                      lastSpellingMetric.score >= 80
-                        ? 'text-green-500'
-                        : lastSpellingMetric.score >= 50
-                        ? 'text-yellow-400'
-                        : 'text-red-500',
-                    )}
-                  >
-                    {lastSpellingMetric.score}
-                  </div>
-                ) : (
-                  <>{'--'}</>
-                )}
-              </div>
-              <div className='flex min-w-[7rem] flex-row gap-3'>
-                <RecordButton
-                  loadingResult={loadingResult}
-                  recordState={recordState}
-                  setRecordState={(state) => setRecordState(state)}
-                />
-                <AudioReactRecorder
-                  state={recordState}
-                  onStop={onStopRecording}
-                />
-              </div>
-            </div>
-            <div
-              className={classNames(
-                'align-middle',
-                recordState !== RecordState.START && 'line-clamp-2 ',
+      <div
+        className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
+        onClick={handleListItemClick}
+      >
+        <div className='flex flex-row items-center gap-4'>
+          <div className='flex flex-row items-center gap-2 text-2xl text-black'>
+            <div className='min-w-[65px] pr-4'>
+              {lastSpellingMetric?.score ? (
+                <div
+                  className={classNames(
+                    'flex flex-row items-center gap-2 font-bold text-black',
+                    lastSpellingMetric.score >= 80
+                      ? 'text-green-500'
+                      : lastSpellingMetric.score >= 50
+                      ? 'text-yellow-400'
+                      : 'text-red-500',
+                  )}
+                >
+                  {lastSpellingMetric.score}
+                </div>
+              ) : (
+                <>{'--'}</>
               )}
-            >
-              <p className='text-sm leading-5 text-gray-900'>{item.text}</p>
+            </div>
+            <div className='flex min-w-[7rem] flex-row gap-3'>
+              <RecordButton
+                loadingResult={loadingResult}
+                recordState={recordState}
+                setRecordState={(state) => setRecordState(state)}
+              />
+              <AudioReactRecorder
+                state={recordState}
+                onStop={onStopRecording}
+              />
             </div>
           </div>
-          <ElipsisMenu
-            handleEdit={() => setIsEditing(true)}
-            handleRemove={() => handleItemRemove(item.listId, item.id)}
-          />
+          <div
+            className={classNames(
+              'align-middle',
+              recordState !== RecordState.START && 'line-clamp-2 ',
+            )}
+          >
+            <p className='text-sm leading-5 text-gray-900'>{item.text}</p>
+          </div>
         </div>
-      )}
+        <ElipsisMenu
+          handleRemove={() => handleItemRemove(item.listId, item.id)}
+        />
+      </div>
     </>
   )
 }

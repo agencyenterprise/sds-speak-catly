@@ -4,8 +4,8 @@ import { Fragment, MouseEvent } from 'react'
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 
 interface ElispsisMenuProps {
-  handleEdit: (event: MouseEvent) => void
-  handleRemove: (event: MouseEvent) => void
+  handleEdit?: (event: MouseEvent) => void
+  handleRemove?: (event: MouseEvent) => void
   color?: string
 }
 
@@ -36,38 +36,42 @@ export default function ElipsisMenu(props: ElispsisMenuProps) {
         leaveTo='transform opacity-0 scale-95'
       >
         <Menu.Items className='absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none'>
-          <Menu.Item>
-            {({ active }) => (
-              <a
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleEdit(e)
-                }}
-                className={classNames(
-                  active ? 'bg-gray-50' : '',
-                  'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
-                )}
-              >
-                Edit
-              </a>
-            )}
-          </Menu.Item>
-          <Menu.Item>
-            {({ active }) => (
-              <a
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleRemove(e)
-                }}
-                className={classNames(
-                  active ? 'bg-gray-50' : '',
-                  'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
-                )}
-              >
-                Delete
-              </a>
-            )}
-          </Menu.Item>
+          {handleEdit && (
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleEdit(e)
+                  }}
+                  className={classNames(
+                    active ? 'bg-gray-50' : '',
+                    'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
+                  )}
+                >
+                  Edit
+                </a>
+              )}
+            </Menu.Item>
+          )}
+          {handleRemove && (
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleRemove(e)
+                  }}
+                  className={classNames(
+                    active ? 'bg-gray-50' : '',
+                    'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
+                  )}
+                >
+                  Delete
+                </a>
+              )}
+            </Menu.Item>
+          )}
         </Menu.Items>
       </Transition>
     </Menu>
