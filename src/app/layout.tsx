@@ -61,43 +61,6 @@ export default function RootLayout({
       )}
     >
       <head>
-        <title>Speak Catly - Improve your pronunciation</title>
-        <meta name='title' content='Speak Catly - Improve your pronunciation' />
-        <meta
-          name='description'
-          content='Sharpen your pronunciation skills with the assistance of a purrfectly trained AI'
-        />
-
-        <meta property='og:type' content='website' />
-        <meta property='og:url' content='https://speakcatly.com/' />
-        <meta
-          property='og:title'
-          content='Speak Catly - Improve your pronunciation'
-        />
-        <meta
-          property='og:description'
-          content='Sharpen your pronunciation skills with the assistance of a purrfectly trained AI'
-        />
-        <meta
-          property='og:image'
-          content='https://metatags.io/images/meta-tags.png'
-        />
-
-        <meta property='twitter:card' content='summary_large_image' />
-        <meta property='twitter:url' content='https://speakcatly.com/' />
-        <meta
-          property='twitter:title'
-          content='Speak Catly - Improve your pronunciation'
-        />
-        <meta
-          property='twitter:description'
-          content='Sharpen your pronunciation skills with the assistance of a purrfectly trained AI'
-        />
-        <meta
-          property='twitter:image'
-          content='https://metatags.io/images/meta-tags.png'
-        />
-
         <Script src='https://scripts.simpleanalyticscdn.com/latest.js'></Script>
       </head>
       <body className='flex h-full flex-col'>
