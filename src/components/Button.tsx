@@ -13,7 +13,7 @@ const variantStyles: Record<string, Record<string, string>> = {
     slate:
       'bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900',
     primary:
-      'bg-primary-600 text-white hover:text-slate-100 hover:bg-primary-500 active:bg-primary-800 active:text-primary-100 focus-visible:outline-primary-600',
+      'bg-primary-500 text-white hover:text-slate-100 hover:bg-primary-600 active:bg-primary-800 active:text-primary-100 focus-visible:outline-primary-600',
     white:
       'bg-white text-slate-900 hover:bg-primary-50 active:bg-primary-200 active:text-slate-600 focus-visible:outline-white',
   },

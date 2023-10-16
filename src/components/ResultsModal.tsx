@@ -19,7 +19,7 @@ export default function ResultsModalComponent(props: ResultsModalProps) {
         className='fixed inset-0 bg-black opacity-50'
         onClick={onClose}
       ></div>
-      <div className='z-10 h-1/2 w-1/2 rounded-lg p-4 shadow-lg'>
+      <div className='min-h-1/2 z-10 w-full rounded-lg p-4 shadow-lg lg:w-3/4'>
         <div className='flex h-full w-full flex-col justify-between text-center text-xl text-gray-800'>
           <div id='result' className='rounded-lg bg-white p-2 md:p-6 md:shadow'>
             <h2 className='mb-4 text-2xl font-bold'>Results</h2>
