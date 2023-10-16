@@ -91,7 +91,7 @@ export default function ListComponent({
     return (
       <li className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'>
         <textarea
-          className='input w-1/2 leading-[0.95rem]'
+          className='input leading-[0.95rem]'
           placeholder='Word or phrase to test your speech...'
           autoFocus
           rows={1}
