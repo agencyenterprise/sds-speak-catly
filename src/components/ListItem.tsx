@@ -39,7 +39,7 @@ export default function ListItemComponent({ item }: ListItemProps) {
         setLoadingResult(false)
       })
 
-    updateSpellingMetrics(data.data)
+    await updateSpellingMetrics(data.data)
     modal.openModal({})
   }
 
@@ -82,9 +82,13 @@ export default function ListItemComponent({ item }: ListItemProps) {
     await handleItem.handleItemRemove(listId, itemId)
   }
 
+  function ResultModal() {
+    return modal.ModalComponent(lastSpellingMetric)
+  }
+
   return (
     <>
-      {modal.ModalComponent(lastSpellingMetric)}
+      <ResultModal />
       <div
         className='flex w-full cursor-pointer flex-row items-center justify-between gap-x-4'
         onClick={handleListItemClick}

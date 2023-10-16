@@ -89,7 +89,7 @@ export default function Home() {
       <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
         <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1 '>
           <textarea
-            className='input w-1/2 leading-[0.95rem]'
+            className='input leading-[0.95rem]'
             placeholder='Enter the word list title...'
             autoFocus
             rows={1}
