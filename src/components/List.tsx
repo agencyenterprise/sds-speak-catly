@@ -92,7 +92,7 @@ export default function ListComponent({
       <li className='flex flex-row items-center justify-end gap-x-4 rounded bg-slate-50 px-3 py-2'>
         <textarea
           className='input w-1/2 leading-[0.95rem]'
-          placeholder='Enter the text...'
+          placeholder='Word or phrase to test your speech...'
           autoFocus
           rows={1}
           ref={newItemRef}
@@ -132,7 +132,7 @@ export default function ListComponent({
       ) : (
         <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
           <textarea
-            className='input w-1/2 leading-[0.95rem]'
+            className='input leading-[0.95rem]'
             placeholder='Enter the list title...'
             autoFocus
             defaultValue={list.title}

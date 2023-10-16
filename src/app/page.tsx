@@ -1,12 +1,10 @@
 'use client'
-import { ListWithItemsAndMetrics } from '@/app/types/databaseAux.types'
 import { ListsAtom } from '@/atoms/ListsAtom'
 import { Footer } from '@/components/Footer'
 import ListComponent from '@/components/List'
 import { Spinner } from '@/components/Spinner'
 import { useHandleList } from '@/hooks/useHandleList'
 import { PlusIcon } from '@heroicons/react/20/solid'
-import axios, { AxiosResponse } from 'axios'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -92,7 +90,7 @@ export default function Home() {
         <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1 '>
           <textarea
             className='input w-1/2 leading-[0.95rem]'
-            placeholder='Enter the list title...'
+            placeholder='Enter the word list title...'
             autoFocus
             rows={1}
             ref={textAreaRef}
