@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { Inter, Lexend } from 'next/font/google'
 import './globals.css'
+import '@typeform/embed/build/css/popup.css'
 
 import { RecoilWrapper } from '@/components/RecoilWrapper'
 import { SDSWrapper } from '@/components/SdsWrapper'

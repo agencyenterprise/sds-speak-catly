@@ -71,7 +71,7 @@ export default function Home() {
   function CreatingList() {
     if (!isCreating) {
       return (
-        <div className='relative min-w-[25%] max-w-[33%] flex-grow'>
+        <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
           <div className='top-0 z-10 flex h-[50px] justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
             <button
               onClick={() => setIsCreating(true)}
@@ -88,7 +88,7 @@ export default function Home() {
     }
 
     return (
-      <div className='relative min-w-[25%] max-w-[33%] flex-grow '>
+      <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
         <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1 '>
           <textarea
             className='input w-1/2 leading-[0.95rem]'

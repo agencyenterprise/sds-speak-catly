@@ -117,7 +117,7 @@ export default function ListComponent({
   }
 
   return (
-    <div className='relative min-w-[25%] max-w-[33%] flex-grow '>
+    <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
       {!isEditingList ? (
         <div className='top-0 z-10 flex justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-3 '>
           <h3 className='text-md font-semibold leading-6 text-white'>

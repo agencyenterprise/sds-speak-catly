@@ -44,7 +44,6 @@ export default function ListItemComponent({ item }: ListItemProps) {
   }
 
   async function onStopRecording(param: { blob: Blob }) {
-    console.log({ param })
     setLoadingResult(true)
     const reader = new FileReader()
     reader.readAsDataURL(param.blob)
