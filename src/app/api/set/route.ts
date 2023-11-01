@@ -5,7 +5,7 @@ import { Item } from '@prisma/client'
 export async function POST(req: NextRequest) {
   const { title, userId, items } = await req.json()
 
-  const newList = await prisma.list.create({
+  const newSet = await prisma.set.create({
     data: {
       title,
       createdBy: {
@@ -37,5 +37,5 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  return NextResponse.json({ status: 201, data: newList })
+  return NextResponse.json({ status: 201, data: newSet })
 }

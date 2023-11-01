@@ -1,11 +1,9 @@
 'use client'
-import Link from 'next/link'
 
-import { Logo } from '@/components/Logo'
 import { SlimLayout } from '@/components/SlimLayout'
+import Icon from '@/images/icon.svg'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
-import Icon from '@/images/icon.svg'
 
 export default function Login() {
   function handleSignIn() {

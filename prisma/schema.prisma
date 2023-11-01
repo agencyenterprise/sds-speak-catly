@@ -46,7 +46,7 @@ model User {
   emailVerified            DateTime?
   image                    String?
   role                     Role                       @default(STUDENT)
-  lists                    List[]                     @relation("userToList")
+  sets                     Set[]                      @relation("userToSet")
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
   accounts                 Account[]
@@ -55,11 +55,11 @@ model User {
   UserPronunciationMetrics UserPronunciationMetrics[]
 }
 
-model List {
+model Set {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
-  createdBy   User     @relation("userToList", fields: [createdById], references: [id])
+  createdBy   User     @relation("userToSet", fields: [createdById], references: [id])
   createdById String   @db.ObjectId
   items       Item[]
   createdAt   DateTime @default(now())
@@ -69,8 +69,8 @@ model List {
 model Item {
   id                         String                    @id @default(auto()) @map("_id") @db.ObjectId
   text                       String
-  list                       List                      @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId                     String                    @db.ObjectId
+  set                        Set                       @relation(fields: [setId], references: [id], onDelete: Cascade)
+  setId                      String                    @db.ObjectId
   createdAt                  DateTime                  @default(now())
   updatedAt                  DateTime                  @updatedAt
   userPronunciationMetrics   UserPronunciationMetrics? @relation(fields: [userPronunciationMetricsId], references: [id])

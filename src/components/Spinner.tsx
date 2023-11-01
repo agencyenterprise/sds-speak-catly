@@ -22,7 +22,7 @@ export const Spinner = ({ message, useLogo }: SpinnerProps) => {
   }
 
   return ReactDOM.createPortal(
-    <div className='z-100 absolute left-0 top-0 flex h-full w-full flex-col items-center justify-center gap-4 bg-black/70 text-primary-200 backdrop-blur-sm'>
+    <div className='z-50 absolute left-0 top-0 flex h-full w-full flex-col items-center justify-center gap-4 bg-black/70 text-primary-200 backdrop-blur-sm'>
       {useLogo ? (
         <div>
           <Image

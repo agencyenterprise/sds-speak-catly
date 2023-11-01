@@ -2,12 +2,14 @@ import '@typeform/embed/build/css/popup.css'
 import clsx from 'clsx'
 import { Inter, Lexend } from 'next/font/google'
 import './globals.css'
-
+import 'react-toastify/dist/ReactToastify.css'
 import { RecoilWrapper } from '@/components/RecoilWrapper'
 import { SDSWrapper } from '@/components/SdsWrapper'
 import NextAuthProvider from '@/lib/providers/next.auth.provider'
 import { type Metadata } from 'next'
 import Script from 'next/script'
+import { ToastContainer } from 'react-toastify'
+
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
     title: 'Speak Catly - Improve your pronunciation',
     description:
       'Sharpen your pronunciation skills with the assistance of a purrfectly trained AI',
-    images: 'https://i.ibb.co/Ydftp5Q/Screenshot-3.png',
+    images: 'https://speakcatly.com/images/cover.jpg',
   },
   openGraph: {
     type: 'website',
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
     title: 'Speak Catly - Improve your pronunciation',
     description:
       'Sharpen your pronunciation skills with the assistance of a purrfectly trained AI',
-    images: 'https://i.ibb.co/Ydftp5Q/Screenshot-3.png',
+    images: 'https://speakcatly.com/images/cover.jpg',
   },
 }
 
@@ -63,9 +65,10 @@ export default function RootLayout({
       <head>
         <Script src='https://scripts.simpleanalyticscdn.com/latest.js'></Script>
       </head>
-      <body className='flex h-full flex-col'>
+      <body className='flex h-full flex-col overflow-hidden'>
         <RecoilWrapper>
           <NextAuthProvider>
+            <ToastContainer />
             <SDSWrapper>{children}</SDSWrapper>
           </NextAuthProvider>
         </RecoilWrapper>
