@@ -78,8 +78,20 @@ export default function Home() {
       })
   }, [session])
 
-  function handleFirstCreate() {
+  function handleFirstSetCreate() {
+    if (!createdFirstSet) {
+      localStorage.setItem('createdFirstSet', 'true')
+      setCreatedFirstSet(true)
+    }
     setIsSlidePanelOpen(true)
+  }
+
+  function handleFirstItemCreate() {
+    if (!createdFirstWord) {
+      localStorage.setItem('createdFirstWord', 'true')
+      setCreatedFirstWord(true)
+    }
+    setIsCreatingItem(true)
   }
 
   async function handleCreateItem() {
@@ -114,6 +126,7 @@ export default function Home() {
             className='input leading-[0.95rem] border-none'
             placeholder='Enter a short sentence or word'
             autoFocus
+            maxLength={50}
             rows={1}
             ref={textAreaRef}
             onKeyDown={handleReturn}
@@ -155,15 +168,15 @@ export default function Home() {
       {loading && <Spinner useLogo={true} message={''} />}
       {!createdFirstSet ? (
         <div className='h-full flex justify-center items-center' ref={mainButtonRef}>
-          <FirstTimeCreateSet onCreate={handleFirstCreate} />
+          <FirstTimeCreateSet onCreate={handleFirstSetCreate} />
         </div>
       ) : (
         <div>
-          <div className='flex justify-between flex-row-reverse mb-8'>
+          <div className='flex justify-between flex-row-reverse mb-2'>
             <Button className='min-w-[100px]' onClick={() => setIsSlidePanelOpen(true)}>
               Your Sets
             </Button>
-            {currentActiveSet && (
+            {currentActiveSet && createdFirstWord && (
               <Button className='min-w-[100px]' onClick={() => setIsCreatingItem(true)}>
                 Add Word/Phrase
               </Button>
@@ -171,24 +184,42 @@ export default function Home() {
           </div>
 
           {currentActiveSet && (
-            <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-10'>
               <h1 className='text-primary-500 text-2xl font-semibold text-center'>
                 {currentActiveSet.title}
               </h1>
               {isCreatingItem && <CreateItem />}
-              <div className='flex flex-col gap-4'>
+              <div className='flex flex-row gap-4 flex-wrap justify-between'>
+                {!currentActiveSet.items.length && !isCreatingItem && (
+                  <div className=' flex flex-col items-center w-full mt-20 gap-4'>
+                    <h3 className='text-xl text-primary-300 max-w-[30rem] text-center'>
+                      Looks like your set is empty
+                    </h3>
+                    {!createdFirstWord && (
+                      <>
+                        <h3 className='text-xl text-primary-300 max-w-[30rem] text-center'>
+                          Click on the button below to add a word or phrase
+                        </h3>
+                        <Button onClick={handleFirstItemCreate}>
+                          Add Word/Phrase
+                        </Button>
+                      </>
+                    )}
+                  </div >
+                )}
                 {currentActiveSet.items.map((item) => (
-                  <WordItemComponent item={item} />
+                  <WordItemComponent key={'item' + item.id} item={item} />
                 ))}
               </div>
             </div>
-          )}
+          )
+          }
           <span className='fixed bottom-0 ml-[-5rem] flex justify-center flex-row w-full'>
             <Footer />
           </span>
-        </div>
+        </div >
       )}
-    </div>
+    </div >
 
   )
 }

@@ -35,7 +35,6 @@ export default function FirstTimeCreateSet({ onCreate }: { onCreate: () => void 
     if (!newSet) return;
 
     onCreate()
-    localStorage.setItem('createdFirstSet', 'true')
     setSets((sets) => [...sets, newSet])
   }
 
@@ -43,9 +42,9 @@ export default function FirstTimeCreateSet({ onCreate }: { onCreate: () => void 
     <>
       <div className='gap-4 flex flex-col justify-center items-center h-full'>
         <span className='flex flex-row gap-2'>
-          First of, let's create a set
-          <Tooltip id="my-tooltip" />
-          <div data-tooltip-id="my-tooltip" data-tooltip-content="A set is a collection of words or sentences grouped together due to their similar sound or pronunciation." className=" flex items-center">
+          First of all, let's create a set
+          <Tooltip id="create-set-tooltip" />
+          <div data-tooltip-id="create-set-tooltip" data-tooltip-content="A set is a collection of words or sentences grouped together due to their similar sound or pronunciation." className=" flex items-center">
             <QuestionMarkCircleIcon className="h-5 w-5 text-primary-400" aria-hidden="true" />
           </div>
         </span>

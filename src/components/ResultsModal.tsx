@@ -1,4 +1,5 @@
 import { CheckSpellingResponse } from '@/app/api/checkPronunciation/route'
+import Button from '@/components/Button'
 import classNames from 'classnames'
 import React from 'react'
 
@@ -6,10 +7,11 @@ interface ResultsModalProps {
   result: CheckSpellingResponse
   isOpen: boolean
   onClose: () => void
+  onTryAgain: () => void
 }
 
 export default function ResultsModalComponent(props: ResultsModalProps) {
-  const { onClose, result, isOpen } = props
+  const { onClose, result, isOpen, onTryAgain } = props
 
   if (!isOpen) return null
 
@@ -21,8 +23,8 @@ export default function ResultsModalComponent(props: ResultsModalProps) {
       ></div>
       <div className='min-h-1/2 z-10 w-full rounded-lg p-4 shadow-lg lg:w-3/4'>
         <div className='flex h-full w-full flex-col justify-between text-center text-xl text-gray-800'>
-          <div id='result' className='rounded-lg bg-white p-2 md:p-6 md:shadow'>
-            <h2 className='mb-4 text-2xl font-bold'>Results</h2>
+          <div id='result' className='rounded-lg bg-white p-2 md:p-6 md:shadow flex flex-col gap-4'>
+            <h2 className=' text-2xl font-bold'>Results</h2>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               <div className='rounded bg-primary-100 p-4'>
                 <h3 className='mb-2 text-center font-semibold'>
@@ -109,6 +111,9 @@ export default function ResultsModalComponent(props: ResultsModalProps) {
                 </p>
               </div>
             </div>
+            <Button onClick={onTryAgain}>
+              Try again
+            </Button>
           </div>
         </div>
       </div>

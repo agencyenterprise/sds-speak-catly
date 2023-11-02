@@ -1,14 +1,15 @@
-import { RecordState } from 'audio-react-recorder'
-import classNames from 'classnames'
+import { RecordState } from "audio-react-recorder"
+import classNames from "classnames"
 
 interface RecordButtonProps {
   recordState: RecordState
   setRecordState: (state: RecordState) => void
   loadingResult: boolean
+  onAbort?: () => void
 }
 
 export default function RecordButton(props: RecordButtonProps) {
-  const { recordState, setRecordState, loadingResult } = props
+  const { recordState, setRecordState, loadingResult, onAbort } = props
 
   return (
     <>
@@ -33,6 +34,7 @@ export default function RecordButton(props: RecordButtonProps) {
         onClick={(e) => {
           e.stopPropagation()
           setRecordState(RecordState.NONE)
+          onAbort?.()
         }}
         className={classNames(
           'h-10 rounded bg-neutral-500 p-2 text-sm text-white',

@@ -42,8 +42,11 @@ export default function SlidePanel(props: Props) {
     const set = sets.find((set) => set.id === setId)
     if (!set) return
 
-    localStorage.setItem('clickedFirstSet', 'true')
-    setClickedFirstSet(true)
+    if (!clickedFirstSet) {
+      localStorage.setItem('clickedFirstSet', 'true')
+      setClickedFirstSet(true)
+    }
+
     setCurrentActiveSet(set)
     setOpen(false)
   }
@@ -146,7 +149,7 @@ export default function SlidePanel(props: Props) {
                           <h1 className='text-primary-500 font-bold'>
                             Your sets
                           </h1>
-                          <Button outlined onClick={() => setIsCreating(true)}>
+                          <Button size='sm' outlined onClick={() => setIsCreating(true)}>
                             <span className='mr-1 h-5 w-5'>
                               <PlusIcon />
                             </span>
@@ -154,17 +157,18 @@ export default function SlidePanel(props: Props) {
                           </Button>
                         </div>
                         <div className='gap-1'>
-                          {!clickedFirstSet && (
-                            <p className="text-sm text-primary-500">
-                              This is the set you just created. Click on it
-                            </p>
-                          )}
+
                           {isCreating && <CreateSet />}
                           {
                             sets.map((set) => (
                               <SetComponent key={'set' + set.id} set={set} onClick={handleSelectSet} />
                             ))
                           }
+                          {!clickedFirstSet && (
+                            <p className="text-sm text-primary-500 text-center">
+                              This is the set we created for you, don't worry you can delete it, For now, click on it
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
