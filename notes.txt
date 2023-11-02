@@ -1,0 +1,1 @@
+Quando clicar em um item da lista, abrir um modal com a frase/palavra o botão de record 

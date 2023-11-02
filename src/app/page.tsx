@@ -1,24 +1,58 @@
 'use client'
-import { ListsAtom } from '@/atoms/ListsAtom'
+import { CurrentActiveSet } from '@/atoms/CurrentActiveSet'
+import { SetsAtom } from '@/atoms/SetsAtom'
+import Button from '@/components/Button'
+import Card from '@/components/Card'
+import FirstTimeCreateSet from '@/components/FirstTimeCreateSet'
 import { Footer } from '@/components/Footer'
-import ListComponent from '@/components/List'
+import SlidePanel from '@/components/SlidePanel'
 import { Spinner } from '@/components/Spinner'
-import { useHandleList } from '@/hooks/useHandleList'
-import { PlusIcon } from '@heroicons/react/20/solid'
+import WordItemComponent from '@/components/WordItem'
+import { useHandleItem } from '@/hooks/useHandleItem'
+import { useHandleSet } from '@/hooks/useHandleSet'
+import { QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { FaCheck, FaX } from 'react-icons/fa6'
-import { useRecoilState } from 'recoil'
-
+import { Tooltip } from 'react-tooltip'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 export default function Home() {
-  const [lists, setLists] = useRecoilState(ListsAtom)
-  const [loading, setLoading] = useState(true)
-  const [isCreating, setIsCreating] = useState(false)
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
-  const { status, data: session } = useSession()
+  const setSets = useSetRecoilState(SetsAtom)
 
-  const handleList = useHandleList()
+  const [loading, setLoading] = useState(true)
+  const { status, data: session } = useSession()
+  const [isSlidePanelOpen, setIsSlidePanelOpen] = useState(false)
+  const [createdFirstSet, setCreatedFirstSet] = useState(false)
+  const [isCreatingItem, setIsCreatingItem] = useState(false)
+  const [createdFirstWord, setCreatedFirstWord] = useState(false)
+  const [currentActiveSet, setCurrentActiveSet] = useRecoilState(CurrentActiveSet)
+  const mainButtonRef = useRef<HTMLDivElement>(null)
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleSet = useHandleSet()
+  const handleItem = useHandleItem()
+
+  useEffect(() => {
+    const localCreatedFirstSet = localStorage.getItem('createdFirstSet')
+
+    if (localCreatedFirstSet) {
+      setCreatedFirstSet(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    const localCreatedFirstWord = localStorage.getItem('createdFirstWord')
+
+    if (localCreatedFirstWord) {
+      setCreatedFirstWord(true)
+    }
+  }, [])
+
+
+  useEffect(() => {
+    console.log(currentActiveSet)
+  }, [currentActiveSet])
+  // recordedFirstWord
 
   useEffect(() => {
     if (status === 'loading') {
@@ -33,10 +67,10 @@ export default function Home() {
   useEffect(() => {
     if (!session?.user?.id) return
 
-    handleList
-      .handleGetList(session?.user?.id)
+    handleSet
+      .handleGetSet(session?.user?.id)
       .then((data) => {
-        setLists(data)
+        setSets(data)
         setLoading(false)
       })
       .catch((err) => {
@@ -44,93 +78,148 @@ export default function Home() {
       })
   }, [session])
 
-  async function handleCreateList() {
-    const data = await handleList.handleCreateList(
-      session?.user?.id,
+  function handleFirstSetCreate() {
+    if (!createdFirstSet) {
+      localStorage.setItem('createdFirstSet', 'true')
+      setCreatedFirstSet(true)
+    }
+    setIsSlidePanelOpen(true)
+  }
+
+  function handleFirstItemCreate() {
+    if (!createdFirstWord) {
+      localStorage.setItem('createdFirstWord', 'true')
+      setCreatedFirstWord(true)
+    }
+    setIsCreatingItem(true)
+  }
+
+  async function handleCreateItem() {
+    if (!currentActiveSet) return;
+    if (!textAreaRef.current) return;
+
+    const data = await handleItem.handleCreateItem(
+      currentActiveSet?.id,
       textAreaRef.current?.value,
     )
 
     if (!data) return
     //TODO: adicionar toast de erro
 
-    setIsCreating(false)
-    setLists((prev) => {
-      return [...prev, data]
-    })
+    setIsCreatingItem(false)
+    setCurrentActiveSet(data.find((set) => set.id === currentActiveSet?.id)!)
+    setSets(data)
   }
 
   function handleReturn(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
       event.preventDefault()
-      handleCreateList()
+      handleCreateItem()
     }
   }
 
-  function CreatingList() {
-    if (!isCreating) {
-      return (
-        <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
-          <div className='top-0 z-10 flex h-[50px] justify-between rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1.5 '>
-            <button
-              onClick={() => setIsCreating(true)}
-              className='flex items-center rounded-full border border-white bg-primary-500 px-4 py-1 font-bold text-white hover:bg-primary-300'
-            >
-              <span className='mr-1 h-5 w-5'>
-                <PlusIcon />
-              </span>
-              Create new list
-            </button>
-          </div>
-        </div>
-      )
-    }
-
+  function CreateItem() {
     return (
-      <div className='relative w-full flex-grow lg:w-[48%] xl:min-w-[25%] xl:max-w-[33%]'>
-        <div className='top-0 z-10 flex gap-4 rounded border-y border-b-gray-200 border-t-gray-100 bg-primary-500 px-3 py-1 '>
+      <Card>
+        <div className='flex flex-col gap-4'>
           <textarea
-            className='input leading-[0.95rem]'
-            placeholder='Enter the word list title...'
+            className='input leading-[0.95rem] border-none'
+            placeholder='Enter a short sentence or word'
             autoFocus
+            maxLength={50}
             rows={1}
             ref={textAreaRef}
             onKeyDown={handleReturn}
           />
-          <div className='flex flex-row items-center gap-3 rounded-lg bg-white px-2'>
-            <span
-              onClick={handleCreateList}
-              className='cursor-pointer text-2xl text-green-500'
-            >
-              <FaCheck />
+          <div className='flex flex-row justify-end items-center gap-3 rounded-lg bg-transparent px-2'>
+            <span>
+              <Tooltip id="new-item-explanation" />
+              <div data-tooltip-id="new-item-explanation" data-tooltip-content="This sentence will be added to your set and you will be able to practice the pronunciation on it" className=" flex items-center">
+                <QuestionMarkCircleIcon className="h-5 w-5 text-primary-400" aria-hidden="true" />
+              </div>
             </span>
             <span
               className='cursor-pointer text-xl text-red-500'
-              onClick={() => setIsCreating(false)}
+              onClick={() => setIsCreatingItem(false)}
             >
-              <FaX />
+              <Button size='sm' outlined className='border-critical-500 text-critical-500 hover:bg-critical-500 focus-visible:outline-critical-500'>
+                Discard
+              </Button>
+            </span>
+            <span
+              onClick={handleCreateItem}
+              className='cursor-pointer text-2xl text-green-500'
+            >
+              <Button size='sm' className='bg-success-500 hover:bg-success-600'  >
+                Create
+              </Button>
             </span>
           </div>
         </div>
-      </div>
+
+      </Card>
     )
   }
 
+
   return (
-    <>
+    <div className='p-4 h-full relative'>
+      <SlidePanel open={isSlidePanelOpen} setOpen={setIsSlidePanelOpen} />
       {loading && <Spinner useLogo={true} message={''} />}
-      <div className='flex min-h-full flex-col justify-between bg-primary-50'>
-        <div className='mx-auto flex w-full items-start gap-x-8 p-4'>
-          <main className='flex-1'>
-            <div className='flex max-h-[89vh] flex-row flex-wrap gap-4'>
-              {lists.map((list) => (
-                <ListComponent list={list} />
-              ))}
-              <CreatingList />
-            </div>
-          </main>
+      {!createdFirstSet ? (
+        <div className='h-full flex justify-center items-center' ref={mainButtonRef}>
+          <FirstTimeCreateSet onCreate={handleFirstSetCreate} />
         </div>
-        <Footer />
-      </div>
-    </>
+      ) : (
+        <div>
+          <div className='flex justify-between flex-row-reverse mb-2'>
+            <Button className='min-w-[100px]' onClick={() => setIsSlidePanelOpen(true)}>
+              Your Sets
+            </Button>
+            {currentActiveSet && createdFirstWord && (
+              <Button className='min-w-[100px]' onClick={() => setIsCreatingItem(true)}>
+                Add Word/Phrase
+              </Button>
+            )}
+          </div>
+
+          {currentActiveSet && (
+            <div className='flex flex-col gap-10'>
+              <h1 className='text-primary-500 text-2xl font-semibold text-center'>
+                {currentActiveSet.title}
+              </h1>
+              {isCreatingItem && <CreateItem />}
+              <div className='flex flex-row gap-4 flex-wrap justify-between'>
+                {!currentActiveSet.items.length && !isCreatingItem && (
+                  <div className=' flex flex-col items-center w-full mt-20 gap-4'>
+                    <h3 className='text-xl text-primary-300 max-w-[30rem] text-center'>
+                      Looks like your set is empty
+                    </h3>
+                    {!createdFirstWord && (
+                      <>
+                        <h3 className='text-xl text-primary-300 max-w-[30rem] text-center'>
+                          Click on the button below to add a word or phrase
+                        </h3>
+                        <Button onClick={handleFirstItemCreate}>
+                          Add Word/Phrase
+                        </Button>
+                      </>
+                    )}
+                  </div >
+                )}
+                {currentActiveSet.items.map((item) => (
+                  <WordItemComponent key={'item' + item.id} item={item} />
+                ))}
+              </div>
+            </div>
+          )
+          }
+          <span className='fixed bottom-0 ml-[-5rem] flex justify-center flex-row w-full'>
+            <Footer />
+          </span>
+        </div >
+      )}
+    </div >
+
   )
 }

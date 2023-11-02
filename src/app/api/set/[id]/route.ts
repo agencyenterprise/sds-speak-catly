@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET({ params }: { params: { id: string } }) {
-  const item = await prisma.list.findUnique({
+  const item = await prisma.set.findUnique({
     where: { id: params.id },
   })
 
@@ -15,7 +15,7 @@ export async function PATCH(
 ) {
   const body = await request.json()
 
-  const item = await prisma.list.update({
+  const item = await prisma.set.update({
     where: { id: params.id },
     data: { title: body.title, description: body.description },
   })
@@ -27,7 +27,7 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const item = await prisma.list.delete({
+  const item = await prisma.set.delete({
     where: { id: params.id },
   })
 

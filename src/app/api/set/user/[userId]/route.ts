@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma/client'
-import { Item, List, User, UserPronunciationMetrics } from '@prisma/client'
+import { Item, Set, User, UserPronunciationMetrics } from '@prisma/client'
 
-export interface GetAllUserList extends List {
+export interface GetAllUserSet extends Set {
   items: Array<
     Item & { score: number; userPronunciationMetrics: UserPronunciationMetrics }
   >
@@ -16,7 +16,7 @@ export async function GET(
 ) {
   const { userId } = params
 
-  const allUserLists = await prisma.list.findMany({
+  const allUserSets = await prisma.set.findMany({
     where: {
       createdBy: {
         id: userId,
@@ -38,5 +38,5 @@ export async function GET(
     },
   })
 
-  return NextResponse.json({ status: 201, data: allUserLists })
+  return NextResponse.json({ status: 201, data: allUserSets })
 }

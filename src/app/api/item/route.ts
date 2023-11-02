@@ -2,13 +2,13 @@ import { prisma } from '@/lib/prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const { text, listId } = await req.json()
+  const { text, setId } = await req.json()
 
   const newItem = await prisma.item.create({
     data: {
       text,
-      list: {
-        connect: { id: listId },
+      set: {
+        connect: { id: setId },
       },
       createdAt: new Date(),
     },

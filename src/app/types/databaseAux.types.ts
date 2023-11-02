@@ -1,9 +1,9 @@
-import { Item, List, UserPronunciationMetrics } from '@prisma/client'
+import { Item, Set, UserPronunciationMetrics } from '@prisma/client'
 
 export interface ItemsWithMetrics extends Item {
   userPronunciationMetrics?: UserPronunciationMetrics
 }
 
-export interface ListWithItemsAndMetrics extends List {
+export interface SetWithItemsAndMetrics extends Set {
   items: ItemsWithMetrics[]
 }

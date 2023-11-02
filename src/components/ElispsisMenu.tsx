@@ -6,11 +6,12 @@ import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 interface ElispsisMenuProps {
   handleEdit?: (event: MouseEvent) => void
   handleRemove?: (event: MouseEvent) => void
+  handleRecordAgain?: (event: MouseEvent) => void
   color?: string
 }
 
 export default function ElipsisMenu(props: ElispsisMenuProps) {
-  const { handleEdit, handleRemove, color } = props
+  const { handleEdit, handleRemove, color, handleRecordAgain } = props
 
   return (
     <Menu as='div' className='relative flex-none'>
@@ -36,6 +37,24 @@ export default function ElipsisMenu(props: ElispsisMenuProps) {
         leaveTo='transform opacity-0 scale-95'
       >
         <Menu.Items className='absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none'>
+          {handleRecordAgain && (
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleRecordAgain(e)
+                  }}
+                  className={classNames(
+                    active ? 'bg-gray-50' : '',
+                    'block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900',
+                  )}
+                >
+                  Record Again
+                </a>
+              )}
+            </Menu.Item>
+          )}
           {handleEdit && (
             <Menu.Item>
               {({ active }) => (

@@ -19,3 +19,42 @@
 .audio-react-recorder {
   display: none;
 }
+
+@layer base {
+  /* firefox */
+  * {
+    scrollbar-color: #3f3f46 transparent;
+    scrollbar-width: thin;
+  }
+
+  /* other browsers */
+  *::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: theme('colors.primary.500');
+    background-clip: padding-box;
+    border: 6px solid transparent;
+    border-radius: 16px;
+  }
+
+  svg {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: white;
+  }
+}
+
+
+body > div > div:nth-of-type(2) {
+  overflow: auto;
+}

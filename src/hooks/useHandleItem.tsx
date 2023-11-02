@@ -1,36 +1,36 @@
 import { ItemsWithMetrics } from '@/app/types/databaseAux.types'
-import { ListsAtom } from '@/atoms/ListsAtom'
+import { SetsAtom } from '@/atoms/SetsAtom'
 import { Item, SpellingMetrics } from '@prisma/client'
 import axios, { AxiosResponse } from 'axios'
 import { useRecoilValue } from 'recoil'
 
 export const useHandleItem = () => {
-  const lists = useRecoilValue(ListsAtom)
-  async function handleCreateItem(listId: string, text: string) {
+  const sets = useRecoilValue(SetsAtom)
+  async function handleCreateItem(setId: string, text: string) {
     const { data } = await axios.post<AxiosResponse<ItemsWithMetrics>>(
       '/api/item',
       {
         text,
-        listId,
+        setId,
       },
     )
-    const foundList = lists.find((oldList) => oldList.id === listId)
-    const newList = lists.map((oldList) => {
-      if (foundList) {
-        if (oldList.id === listId) {
+    const foundSet = sets.find((oldSet) => oldSet.id === setId)
+    const newSet = sets.map((oldSet) => {
+      if (foundSet) {
+        if (oldSet.id === setId) {
           return {
-            ...oldList,
-            items: [...oldList.items, data.data],
+            ...oldSet,
+            items: [...oldSet.items, data.data],
           }
         }
       }
-      return oldList
+      return oldSet
     })
 
-    return newList
+    return newSet
   }
 
-  async function handleItemEdit(itemId: string, listId: string, text: string) {
+  async function handleItemEdit(itemId: string, setId: string, text: string) {
     const { data } = await axios.patch<AxiosResponse<Item>>(
       `/api/item/${itemId}`,
       {
@@ -40,12 +40,12 @@ export const useHandleItem = () => {
 
     const newItem = data.data
 
-    return lists.map((list) => {
-      if (list.id === listId) {
+    return sets.map((set) => {
+      if (set.id === setId) {
         return {
-          ...list,
+          ...set,
           items: [
-            ...list.items.map((oldItem) => {
+            ...set.items.map((oldItem) => {
               if (oldItem.id === itemId) {
                 return {
                   ...oldItem,
@@ -57,36 +57,36 @@ export const useHandleItem = () => {
           ],
         }
       }
-      return list
+      return set
     })
   }
 
-  async function handleItemRemove(listId: string, itemId: string) {
+  async function handleItemRemove(setId: string, itemId: string) {
     await axios.delete<AxiosResponse<Item>>(`/api/item/${itemId}`)
-    return lists.map((list) => {
-      if (list.id === listId) {
+    return sets.map((set) => {
+      if (set.id === setId) {
         return {
-          ...list,
+          ...set,
           items: [
-            ...list.items.filter((item) => {
+            ...set.items.filter((item) => {
               return item.id !== itemId
             }),
           ],
         }
       }
-      return list
+      return set
     })
   }
 
   interface UpdateSpellingMetrics {
-    listId: string
+    setId: string
     itemId: string
     userId: string
     spellingMetrics: SpellingMetrics
   }
 
   async function updateSpellingMetrics({
-    listId,
+    setId,
     itemId,
     userId,
     spellingMetrics,
@@ -100,12 +100,12 @@ export const useHandleItem = () => {
       },
     )
 
-    const updatedList = lists.map((list) => {
-      if (list.id === listId) {
+    const updatedSet = sets.map((set) => {
+      if (set.id === setId) {
         return {
-          ...list,
+          ...set,
           items: [
-            ...list.items.map((prevItem) => {
+            ...set.items.map((prevItem) => {
               if (prevItem.id === itemId) {
                 return data.data
               }
@@ -114,9 +114,9 @@ export const useHandleItem = () => {
           ],
         }
       }
-      return list
+      return set
     })
-    return updatedList
+    return updatedSet
   }
 
   return {
